@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Awesome-pyecharts</title>
+            <script type="text/javascript" src="https://assets.pyecharts.org/assets/echarts.min.js"></script>
+
+</head>
+<body>
+    <div id="aa1bd26ba4e84f68a082c29057d9b486" class="chart-container" style="width:900px; height:500px;"></div>
+    <script>
+        var chart_aa1bd26ba4e84f68a082c29057d9b486 = echarts.init(
+            document.getElementById('aa1bd26ba4e84f68a082c29057d9b486'), 'white', {renderer: 'canvas'});
+        var option_aa1bd26ba4e84f68a082c29057d9b486 = {
+    "animation": true,
+    "animationThreshold": 2000,
+    "animationDuration": 1000,
+    "animationEasing": "cubicOut",
+    "animationDelay": 0,
+    "animationDurationUpdate": 300,
+    "animationEasingUpdate": "cubicOut",
+    "animationDelayUpdate": 0,
+    "color": [
+        "#6e9ef1",
+        "#c23531",
+        "#2f4554",
+        "#61a0a8",
+        "#d48265",
+        "#749f83",
+        "#ca8622",
+        "#bda29a",
+        "#6e7074",
+        "#546570",
+        "#c4ccd3",
+        "#f05b72",
+        "#ef5b9c",
+        "#f47920",
+        "#905a3d",
+        "#fab27b",
+        "#2a5caa",
+        "#444693",
+        "#726930",
+        "#b2d235",
+        "#6d8346",
+        "#ac6767",
+        "#1d953f",
+        "#6950a1",
+        "#918597"
+    ],
+    "series": [
+        {
+            "type": "line",
+            "name": "\u5730\u94c1",
+            "connectNulls": false,
+            "symbol": "emptyCircle",
+            "symbolSize": 4,
+            "showSymbol": true,
+            "smooth": false,
+            "step": false,
+            "data": [
+                [
+                    "1 \u65e5",
+                    612264.0
+                ],
+                [
+                    "2 \u65e5",
+                    615504.0
+                ],
+                [
+                    "3 \u65e5",
+                    634821.0
+                ],
+                [
+                    "4 \u65e5",
+                    431029.0
+                ],
+                [
+                    "5 \u65e5",
+                    449881.0
+                ],
+                [
+                    "6 \u65e5",
+                    496878.0
+                ],
+                [
+                    "7 \u65e5",
+                    655900.0
+                ],
+                [
+                    "8 \u65e5",
+                    650795.0
+                ],
+                [
+                    "9 \u65e5",
+                    644007.0
+                ],
+                [
+                    "10 \u65e5",
+                    670167.0
+                ],
+                [
+                    "11 \u65e5",
+                    550655.0
+                ],
+                [
+                    "12 \u65e5",
+                    499984.0
+                ],
+                [
+                    "13 \u65e5",
+                    701035.0
+                ]
+            ],
+            "hoverAnimation": true,
+            "label": {
+                "show": false,
+                "position": "top",
+                "margin": 8
+            },
+            "lineStyle": {
+                "show": true,
+                "width": 1,
+                "opacity": 1,
+                "curveness": 0,
+                "type": "solid"
+            },
+            "areaStyle": {
+                "opacity": 0
+            },
+            "zlevel": 0,
+            "z": 0
+        },
+        {
+            "type": "line",
+            "name": "\u516c\u4ea4",
+            "connectNulls": false,
+            "symbol": "emptyCircle",
+            "symbolSize": 4,
+            "showSymbol": true,
+            "smooth": false,
+            "step": false,
+            "data": [
+                [
+                    "1 \u65e5",
+                    1360216.0
+                ],
+                [
+                    "2 \u65e5",
+                    1369068.0
+                ],
+                [
+                    "3 \u65e5",
+                    1376584.0
+                ],
+                [
+                    "4 \u65e5",
+                    1036986.0
+                ],
+                [
+                    "5 \u65e5",
+                    1095230.0
+                ],
+                [
+                    "6 \u65e5",
+                    1183820.0
+                ],
+                [
+                    "7 \u65e5",
+                    1434767.0
+                ],
+                [
+                    "8 \u65e5",
+                    1453629.0
+                ],
+                [
+                    "9 \u65e5",
+                    1408356.0
+                ],
+                [
+                    "10 \u65e5",
+                    1474815.0
+                ],
+                [
+                    "11 \u65e5",
+                    1326556.0
+                ],
+                [
+                    "12 \u65e5",
+                    1249084.0
+                ],
+                [
+                    "13 \u65e5",
+                    1537001.0
+                ]
+            ],
+            "hoverAnimation": true,
+            "label": {
+                "show": false,
+                "position": "top",
+                "margin": 8
+            },
+            "lineStyle": {
+                "show": true,
+                "width": 1,
+                "opacity": 1,
+                "curveness": 0,
+                "type": "solid"
+            },
+            "areaStyle": {
+                "opacity": 0
+            },
+            "markPoint": {
+                "symbolSize": 90,
+                "label": {
+                    "show": true,
+                    "position": "inside",
+                    "color": "#fff",
+                    "margin": 8
+                },
+                "data": [
+                    {
+                        "name": "\u6700\u9ad8\u6d41\u91cf",
+                        "type": "max"
+                    }
+                ]
+            },
+            "zlevel": 0,
+            "z": 0
+        },
+        {
+            "type": "line",
+            "name": "\u957f\u5ba2",
+            "connectNulls": false,
+            "symbol": "emptyCircle",
+            "symbolSize": 4,
+            "showSymbol": true,
+            "smooth": false,
+            "step": false,
+            "data": [
+                [
+                    "1 \u65e5",
+                    4909.0
+                ],
+                [
+                    "2 \u65e5",
+                    4971.0
+                ],
+                [
+                    "3 \u65e5",
+                    5975.0
+                ],
+                [
+                    "4 \u65e5",
+                    5807.0
+                ],
+                [
+                    "5 \u65e5",
+                    4393.0
+                ],
+                [
+                    "6 \u65e5",
+                    4126.0
+                ],
+                [
+                    "7 \u65e5",
+                    4503.0
+                ],
+                [
+                    "8 \u65e5",
+                    4455.0
+                ],
+                [
+                    "9 \u65e5",
+                    4326.0
+                ],
+                [
+                    "10 \u65e5",
+                    4568.0
+                ],
+                [
+                    "11 \u65e5",
+                    4539.0
+                ],
+                [
+                    "12 \u65e5",
+                    4308.0
+                ],
+                [
+                    "13 \u65e5",
+                    4855.0
+                ]
+            ],
+            "hoverAnimation": true,
+            "label": {
+                "show": false,
+                "position": "top",
+                "margin": 8
+            },
+            "lineStyle": {
+                "show": true,
+                "width": 1,
+                "opacity": 1,
+                "curveness": 0,
+                "type": "solid"
+            },
+            "areaStyle": {
+                "opacity": 0
+            },
+            "zlevel": 0,
+            "z": 0
+        }
+    ],
+    "legend": [
+        {
+            "data": [
+                "\u5730\u94c1",
+                "\u516c\u4ea4",
+                "\u957f\u5ba2"
+            ],
+            "selected": {
+                "\u5730\u94c1": true,
+                "\u516c\u4ea4": true,
+                "\u957f\u5ba2": true
+            },
+            "show": true,
+            "padding": 5,
+            "itemGap": 10,
+            "itemWidth": 25,
+            "itemHeight": 14
+        }
+    ],
+    "tooltip": {
+        "show": true,
+        "trigger": "item",
+        "triggerOn": "mousemove|click",
+        "axisPointer": {
+            "type": "line"
+        },
+        "textStyle": {
+            "fontSize": 14
+        },
+        "borderWidth": 0
+    },
+    "xAxis": [
+        {
+            "type": "category",
+            "show": true,
+            "scale": false,
+            "nameLocation": "end",
+            "nameGap": 15,
+            "gridIndex": 0,
+            "inverse": false,
+            "offset": 0,
+            "splitNumber": 5,
+            "minInterval": 0,
+            "splitLine": {
+                "show": false,
+                "lineStyle": {
+                    "show": true,
+                    "width": 1,
+                    "opacity": 1,
+                    "curveness": 0,
+                    "type": "solid"
+                }
+            },
+            "data": [
+                "1 \u65e5",
+                "2 \u65e5",
+                "3 \u65e5",
+                "4 \u65e5",
+                "5 \u65e5",
+                "6 \u65e5",
+                "7 \u65e5",
+                "8 \u65e5",
+                "9 \u65e5",
+                "10 \u65e5",
+                "11 \u65e5",
+                "12 \u65e5",
+                "13 \u65e5"
+            ]
+        }
+    ],
+    "yAxis": [
+        {
+            "type": "value",
+            "show": true,
+            "scale": false,
+            "nameLocation": "end",
+            "nameGap": 15,
+            "gridIndex": 0,
+            "axisTick": {
+                "show": true,
+                "alignWithLabel": false,
+                "inside": false
+            },
+            "inverse": false,
+            "offset": 0,
+            "splitNumber": 5,
+            "minInterval": 0,
+            "splitLine": {
+                "show": true,
+                "lineStyle": {
+                    "show": true,
+                    "width": 1,
+                    "opacity": 1,
+                    "curveness": 0,
+                    "type": "solid"
+                }
+            }
+        }
+    ],
+    "title": [
+        {
+            "text": "2020\u5e74\u56db\u6708\u5730\u94c1\u516c\u4ea4\u957f\u5ba2\u5ba2\u6d41",
+            "padding": 5,
+            "itemGap": 10
+        }
+    ]
+};
+        chart_aa1bd26ba4e84f68a082c29057d9b486.setOption(option_aa1bd26ba4e84f68a082c29057d9b486);
+    </script>
+</body>
+</html>
