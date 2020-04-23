@@ -1,2 +1,5 @@
 .ipynb_checkpoints
 /data
+.jupyter_symlinks
+.gitignore
+.vscode/settings.json
