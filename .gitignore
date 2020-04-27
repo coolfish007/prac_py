@@ -3,3 +3,5 @@
 .jupyter_symlinks
 .gitignore
 .vscode/settings.json
+.idea
+.DS_Store
