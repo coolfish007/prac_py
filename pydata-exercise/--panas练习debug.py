@@ -38,7 +38,7 @@ testdfgo(df)
 print(df)
 
 # %% [markdown]
-# ## datafrmae apply,每行的数据处理后并新增列
+# ## datafrmae apply函数,每行的数据处理后并新增列
 # %%
 data = {
     'state': ['Ohio', 'Ohio', 'Ohio', 'Nevada', 'Nevada', 'Nevada'],
@@ -52,7 +52,6 @@ frame = pd.DataFrame(data)
 
 
 def new_value0(row):
-    print(row)
     return (5, 5)
 
 
@@ -63,7 +62,6 @@ def new_value(x=0, y=0):
 
 
 def new_value1(row):
-    print(row)
     row['new_year'] = row['year'] + 5
     row['new_pop'] = row['pop'] * 5
     return row
@@ -94,6 +92,8 @@ frame['new_year'], frame['new_pop'] = zip(
     *frame[['year', 'pop']].apply(new_value2, axis=1, year='year', pop='pop'))
 print(frame)
 
+# %% [markdown]
+# 理解zip和unzip的使用
 # %%
 x1 = '5,6,7'
 y1 = '1,2,3'
