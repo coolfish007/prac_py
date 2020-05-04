@@ -1,6 +1,20 @@
-# To add a new cell, type '# %%'
-# To add a new markdown cell, type '# %% [markdown]'
-# %% Change working directory from the workspace root to the ipynb file location. Turn this addition off with the DataScience.changeDirOnImportExport setting
+# -*- coding: utf-8 -*-
+# ---
+# jupyter:
+#   jupytext:
+#     formats: ipynb,py:percent
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.4.2
+#   kernelspec:
+#     display_name: 'Python 3.8.2 64-bit (''data'': venv)'
+#     language: python
+#     name: python38264bitdatavenvaa4066e455544989bb855911b00b5f95
+# ---
+
+# %%
 # ms-python.python added
 import os
 try:
@@ -8,18 +22,19 @@ try:
     print(os.getcwd())
 except:
     pass
+
 # %% [markdown]
-# ## Pandas 练习
+#  ## Pandas 练习
 
 # %%
 import pandas as pd
+from openpyxl import load_workbook
 
 # %% [markdown]
-# ## 测试datafrmae传入的变化
-# 传入的是调用的引用.
-# 注意 `df=pd.DataFrame(a)`, 这句之后df就指向新的数据结构了,和传入的
-# df就没有关系了. 但是append操作必须返回才能起效果,不像drop(inplace=True).
-
+#  ## 测试datafrmae传入的变化
+#  传入的是调用的引用.
+#  注意 `df=pd.DataFrame(a)`, 这句之后df就指向新的数据结构了,和传入的
+#  df就没有关系了. 但是append操作必须返回才能起效果,不像drop(inplace=True).
 
 # %%
 def testdfgo(df):
@@ -37,8 +52,12 @@ df = pd.DataFrame([[0, 0], [5, 6]], columns=['A', 'B'])
 testdfgo(df)
 print(df)
 
+
 # %% [markdown]
-# ## datafrmae apply函数,每行的数据处理后并新增列
+#  ## dataframe apply函数
+# %% [markdown]
+#  ### 处理每行的数据后并新增列
+
 # %%
 data = {
     'state': ['Ohio', 'Ohio', 'Ohio', 'Nevada', 'Nevada', 'Nevada'],
@@ -77,23 +96,29 @@ def new_value2(row, year, pop):
 frame['new_year'] = frame.apply(lambda row: row['year'] + 5, axis=1)
 frame['new_year'] = frame.apply(lambda row: new_value(row['year']), axis=1)
 
+
 # %%
 frame = frame.apply(new_value1, axis=1)
 print(frame)
+
 
 # %%
 frame['new_year'], frame['new_pop'] = zip(
     *frame[['year', 'pop']].apply(new_value0, axis=1))
 print(frame)
+
 # %%
 frame['new_year'], frame['new_pop'] = zip(
     *frame[['year', 'pop']].apply(new_value2, axis=1, args=('year', 'pop')))
 frame['new_year'], frame['new_pop'] = zip(
     *frame[['year', 'pop']].apply(new_value2, axis=1, year='year', pop='pop'))
+# print('result')
 print(frame)
 
+
 # %% [markdown]
-# 理解zip和unzip的使用
+#  ### 理解zip和unzip的使用
+
 # %%
 x1 = '5,6,7'
 y1 = '1,2,3'
@@ -108,4 +133,36 @@ for e in la:
 print(lb)
 lb = list(zip(*lb))
 print(lb)
+
+# %% [markdown]
+#  ## append函数
+#  主要是异常情况的处理
+# %%
+data = {
+    'state': ['Ohio', 'Ohio', 'Ohio', 'Nevada', 'Nevada', 'Nevada'],
+    'year': [2000, 2001, 2002, 2001, 2002, 2003],
+    'pop': [1.5, 1.7, 3.6, 2.4, 2.9, 3.2]
+}
+f_name = '../data/hgj_gong_jiao_xian_lu 4.xlsx'
+frame = pd.DataFrame(data)
+nan_frame = pd.DataFrame()
+
+book = load_workbook(f_name)
+writer = pd.ExcelWriter(f_name, engine='openpyxl')
+writer.book = book
+writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+
+try:
+    nan_frame = pd.read_excel(f_name, sheet_name='123')
+except ValueError:
+    print('无此数据')
+except:
+    print('其他异常')
+nan_frame = nan_frame.append(frame, ignore_index=True)
+print(nan_frame)
+
+if ('123' in writer.sheets):
+    print('有此sheet页')
+else:
+    print('无此sheet页')
 # %%
