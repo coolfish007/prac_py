@@ -29,8 +29,8 @@ import math
 import time
 import random
 import requests
-import xlwt
 import pandas as pd
+from openpyxl import load_workbook
 
 # %%
 headers = {
@@ -294,13 +294,18 @@ line_noinfo = []
 
 # %%
 f_name = 'data/hgj_gong_jiao_xian_lu.xlsx'
+book = load_workbook(f_name)
 busline_from_excel = pd.read_excel(f_name, sheet_name='hgj_gong_jiao_xian_lu')
-writer = pd.ExcelWriter(f_name)
+writer = pd.ExcelWriter(f_name, engine='openpyxl')
+writer.book = book
+writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+
 busline_lst = []
 for bn in busline_from_excel['xian_lu_ming_cheng']:
     busline_lst.append(bn)
 buslines = ','.join(busline_lst)
 print(buslines)
+# buslines = '环路'
 # %% [markdown]
 #  ### getonebusline-调用1
 
@@ -328,11 +333,13 @@ try:
 except KeyError:
     print('--高德限制IP错误,以下是本次获取到的数据汇总:--')
 
-print(station_df)
-print(busline_df)
-print('数据汇总:查询[%d]条线路,抽取到详情[%d]条线路,涉及站点: [%s] 个' % (len(buslines.split(',')), len(busline_df)/2, len(station_df)/2))
-print('共有: [%d] 条线路--没有详情--, 其线路名称:' % len(line_noinfo))
-print(','.join(line_noinfo))
+print(station_df.head())
+print(busline_df.head())
+print('数据汇总:共需抽取[%d]条线路,已抽取到详情[%d]条线路,涉及站点: [%s] 个' %
+      (len(buslines.split(',')), len(busline_df) / 2, len(station_df) / 2))
+if(len(line_noinfo) > 0):
+    print('共有: [%d] 条线路--没有详情--, 其线路名称:' % len(line_noinfo))
+    print(','.join(line_noinfo))
 
 if len(busline_df) > 0:
     busline_df.to_excel(writer, sheet_name='busline_info', header=True)
