@@ -26,6 +26,8 @@
 
 # %%
 import math
+import time
+import random
 import requests
 import xlwt
 import pandas as pd
@@ -132,7 +134,7 @@ def getonebusline(busline_df, station_df, busline_name):
 
 
 # %% [markdown]
-#
+# ### 坐标转换的代码,todo:放在独立的文件中
 
 # %%
 pi = 3.1415926535897932384626  # π
@@ -256,7 +258,7 @@ def getonebusline2(busline_name):
             while (i < 2):
                 tmp = getbusstations(busline_dict[i], 'stations')
                 print('--抽取公交线路:[%s-%s]的站点,此线路共有[%d]个站点' % (busline_name, busline.iloc[i]['type'], len(tmp)))
-                print(','.join(tmp['name']))
+                # print(','.join(tmp['name']))
                 tmp['busline_id'] = busline.iloc[i]['id']
                 tmp['order'] = tmp.index
                 tmp['xy_coords_84'], tmp['poiid2_xy_84'] = zip(
@@ -286,6 +288,19 @@ busline_df = pd.DataFrame(columns=busline_df_column)
 station_df = pd.DataFrame(columns=station_df_column)
 line_noinfo = []
 
+
+# %% [markdown]
+# 从excel文件中读取线路名称,为了和下面代码兼容,组成字符串:'环路,101,100'的形式.
+
+# %%
+f_name = 'data/hgj_gong_jiao_xian_lu.xlsx'
+busline_from_excel = pd.read_excel(f_name, sheet_name='hgj_gong_jiao_xian_lu')
+writer = pd.ExcelWriter(f_name)
+busline_lst = []
+for bn in busline_from_excel['xian_lu_ming_cheng']:
+    busline_lst.append(bn)
+buslines = ','.join(busline_lst)
+print(buslines)
 # %% [markdown]
 #  ### getonebusline-调用1
 
@@ -301,18 +316,29 @@ print(station_df)
 # %% [markdown]
 #  ### getonebusline-调用2
 # %%
-for busline_name in buslines.split(','):
-    busline, stations = getonebusline2(busline_name)
-    if (len(busline) == 0):
-        line_noinfo.append(busline_name)
-    else:
-        busline_df = busline_df.append(busline, ignore_index=True)
-        station_df = station_df.append(stations, ignore_index=True)
+try:
+    for busline_name in buslines.split(','):
+        busline, stations = getonebusline2(busline_name)
+        if (len(busline) == 0):
+            line_noinfo.append(busline_name)
+        else:
+            busline_df = busline_df.append(busline, ignore_index=True)
+            station_df = station_df.append(stations, ignore_index=True)
+        time.sleep(random.random() * random.randint(0, 7) + random.randint(0, 5))
+except KeyError:
+    print('--高德限制IP错误,以下是本次获取到的数据汇总:--')
+
 print(station_df)
 print(busline_df)
 print('数据汇总:查询[%d]条线路,抽取到详情[%d]条线路,涉及站点: [%s] 个' % (len(buslines.split(',')), len(busline_df)/2, len(station_df)/2))
 print('共有: [%d] 条线路--没有详情--, 其线路名称:' % len(line_noinfo))
-print(','.join(i for i in line_noinfo))
+print(','.join(line_noinfo))
+
+if len(busline_df) > 0:
+    busline_df.to_excel(writer, sheet_name='busline_info', header=True)
+    station_df.to_excel(writer, sheet_name='stations_info', header=True)
+    writer.save()
+writer.close()
 
 
 # %%
