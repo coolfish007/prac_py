@@ -275,7 +275,7 @@ def write2excel(oldbusline, newbusline, oldstations, newstations):
 
 # %% [markdown]
 #  ### getonebusline-调用2
-#  TODO: 1.将没有线路详情的线路输出到文件中,如果是停运的话做标识;2.标识a2b和b2a中途径站不同的线路.
+#  TODO: 0505:1.将没有线路详情的线路输出到文件中,如果是停运的话做标识;2.标识a2b和b2a中途径站不同的线路.
 # %%
 try:
     exist_busline_lst = list(oldbusline['search_name'])
