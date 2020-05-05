@@ -275,7 +275,7 @@ buslines = ','.join(busline_lst)
 print(buslines)
 # %% [markdown]
 #  ### getonebusline-调用2
-#  #  FIXME: 1.200505:抽取的线路append到结果时应去重.
+#  FIXME: 1.200505:抽取的线路append到结果时应去重.
 # %%
 try:
     exist_busline_lst = list(oldbusline['search_name'])
@@ -298,7 +298,7 @@ print(busline_df.head())
 print('数据汇总:共需抽取[%d]条线路,已抽取到详情[%d]条线路,涉及站点: [%s] 个' %
       (len(buslines.split(',')), len(busline_df) / 2, len(station_df) / 2))
 if(len(line_noinfo) > 0):
-    print('共有: [%d] 条线路---没有详情---, 其线路名称:' % len(line_noinfo))
+    print('共有: [%d] 条线路--没有详情--, 其线路名称:' % len(line_noinfo))
     print(','.join(line_noinfo))
 
 write2excel(oldbusline, busline_df, oldstations, station_df)
