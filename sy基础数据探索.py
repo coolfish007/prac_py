@@ -45,7 +45,7 @@ print(ncols)
 newWB = copy(workbook)
 newWS = newWB.get_sheet(0)
 for i in range(nrows):  # 循环打印每一行
-    if(i >= 3):
+    if (i >= 3):
         for j in range(4, 8):
             old_v = worksheet.cell_value(i, j)
             new_v = old_v.replace('.', '/')
@@ -64,7 +64,7 @@ pd.options.display.html.table_schema = True
 df = pd.read_excel('data/安运公交 2.xls', sheet_name='101')
 df2 = df['车长/宽/高（mm）'].str.split('/', expand=True)
 # df3 = df.drop('车长/宽/高（mm）', axis=1).join(df2)
-df2 = pd.concat([df, df2], axis = 1)
+df2 = pd.concat([df, df2], axis=1)
 df2.drop('车长/宽/高（mm）', inplace=True, axis=1)
 
 df2.rename(columns={0: '车长mm', 1: '车宽mm', 2: '车高mm'}, inplace=True)
@@ -84,14 +84,14 @@ import pandas as pd
 f_name = 'data/安运公交 3.xls'
 print('处理文件：' + f_name)
 # writer = pd.ExcelWriter('安运公交-拆列1.xlsx',engine='xlsxwriter')
-writer = pd.ExcelWriter('data/安运公交-拆列@'+datetime.date.today().strftime("%Y-%m-%d")+'.xls')
+writer = pd.ExcelWriter('data/安运公交-拆列@' + datetime.date.today().strftime("%Y-%m-%d") + '.xls')
 xls_f = pd.ExcelFile(f_name)
 for i in xls_f.sheet_names:
     # df = pd.read_excel('安运公交 3.xls',i,header=2)
     # if i.startswith('101'):
     # df_101 = df
-    df = xls_f.parse(i, header = 2)
-    print('处理'+f_name+'的sheet页：'+i)
+    df = xls_f.parse(i, header=2)
+    print('处理' + f_name + '的sheet页：' + i)
     df2 = df['车长/宽/高（mm）'].str.split('/', expand=True)
     df3 = df.drop('车长/宽/高（mm）', axis=1).join(df2)
     df3.rename(columns={'序 号': '公交公司', 0: '车长mm', 1: '车宽mm', 2: '车高mm'}, inplace=True)
@@ -148,10 +148,10 @@ df.set_index(['所在站', '时间'], inplace=True)
 df1 = df.iloc[:, [0, 1, 2]]
 # df2 = df.iloc[:,[3,4,5]].copy()
 # df2.rename(columns={'日期.1':'日期','姓名.1':'姓名','电话.1':'电话'},inplace=True)
-df2 = df.iloc[:, [3, 4, 5]]. rename(columns={'日期.1': '日期', '姓名.1': '姓名', '电话.1': '电话'}, inplace = False)
+df2 = df.iloc[:, [3, 4, 5]].rename(columns={'日期.1': '日期', '姓名.1': '姓名', '电话.1': '电话'}, inplace=False)
 # df3 = df.iloc[:,[6,7,8]].copy()
 # df3.rename(columns={'日期.2':'日期','姓名.2':'姓名','电话.2':'电话'},inplace=True)
-df3 = df.iloc[:, [6, 7, 8]]. rename(columns={'日期.2': '日期', '姓名.2': '姓名', '电话.2': '电话'}, inplace=False)
+df3 = df.iloc[:, [6, 7, 8]].rename(columns={'日期.2': '日期', '姓名.2': '姓名', '电话.2': '电话'}, inplace=False)
 df_new = pd.concat([df1, df2, df3])
 
 # print(df_new)
@@ -210,7 +210,6 @@ print('只要完全重复的就删除：', len(b))
 a = a.append(b).drop_duplicates(keep=False)
 print('完全重复的数量：', len(a))
 
-
 a1 = df.drop_duplicates(subset=0, keep='first')
 print('公司，去除重复的，但保留重复的第一个：', len(a1))
 b1 = df.drop_duplicates(subset=0, keep=False)
@@ -232,21 +231,24 @@ df.columns = ['gs', 'cp']
 a1.columns = ['cp']
 
 a2 = pd.merge(df, a1, on='cp', how='inner')
-writer = pd.ExcelWriter('data/重复车牌的数据@'+datetime.date.today().strftime("%Y-%m-%d")+'.xls')
-a2.to_excel(writer)
-writer.save()
+# writer = pd.ExcelWriter('data/重复车牌的数据@' + datetime.date.today().strftime("%Y-%m-%d") + '.xls')
+# a2.to_excel(writer)
+# writer.save()
 # print('+++个体经营重复车牌：',a2[a2['gs'].str.contains('个体')]['cp'].nunique())
 
 print('重复的车牌数据共：', len(a2))
 print('重复车牌中独立的车牌有：', a2['cp'].nunique())
+print(a2['cp'].value_counts())
 print('重复车牌中，重复的次数（这个数据值探索重要）：')
 print(a2['cp'].value_counts().value_counts())
 # a2 = a2.drop_duplicates(subset='cp',keep=None)
 
 # %% [markdown]
 # ### 筛选出重复的数据
-# 第二个需求是，找出重复车牌，完全重复的有哪些，同一车牌被分散在不同公司的数据有哪些；
-
+# TODO: 200417:第二个需求是，找出重复车牌，完全重复的有哪些，同一车牌被分散在不同公司的数据有哪些；
+# %%
+# 200506:
+a2.drop_duplicates(keep=False)
 # %% [markdown]
 # ## pandas-profiling
 
@@ -298,8 +300,9 @@ from __future__ import unicode_literals
 from snapshot_pyppeteer import snapshot
 from pyecharts.render import make_snapshot
 
+
 def convertTime(x):
-    y = time.localtime(x/1000)
+    y = time.localtime(x / 1000)
     z = time.strftime("%Y-%m-%d %H:%M:%S", y)
     return z
 
@@ -319,12 +322,9 @@ print(dfs.keys())
 
 # %%
 df = dfs['四月']
-bar = (
-    Bar()
-    .add_xaxis([2011, 2012, 2013, 2014, 2015, 2016, 2017])
-    .add_yaxis("产品销量", df.loc[0:6, '地铁（人次）'].tolist())
-    .set_global_opts(title_opts=opts.TitleOpts(title="11 ~ 17年 xxx 公司 xx 产品销量图", subtitle="这里是副标题"))
-)
+bar = (Bar().add_xaxis([2011, 2012, 2013, 2014, 2015, 2016,
+                        2017]).add_yaxis("产品销量", df.loc[0:6, '地铁（人次）'].tolist()).set_global_opts(
+                            title_opts=opts.TitleOpts(title="11 ~ 17年 xxx 公司 xx 产品销量图", subtitle="这里是副标题")))
 bar.load_javascript()
 
 # %%
@@ -343,11 +343,13 @@ from eplot import eplot
 import numpy as np
 import pandas as pd
 # data环境需要安装eplot包
-df1 = pd.DataFrame([np.random.uniform(10, 1, size=1000),
-                   np.random.uniform(10, 5, size=1000),
-                   np.random.randint(1, high=10, size=1000),
-                   np.random.choice(list('ABCD'), size=1000)],
-                  index = ['col1', 'col2', 'col3', 'col4']).T
+df1 = pd.DataFrame([
+    np.random.uniform(10, 1, size=1000),
+    np.random.uniform(10, 5, size=1000),
+    np.random.randint(1, high=10, size=1000),
+    np.random.choice(list('ABCD'), size=1000)
+],
+                   index=['col1', 'col2', 'col3', 'col4']).T
 df1.eplot.line()
 
 # %% [markdown]
@@ -363,7 +365,7 @@ df1.eplot.line()
 for month in dfs.keys():
     df = dfs[month]
     df.drop('备注', axis=1, inplace=True)
-    if(month == '二月'):
+    if (month == '二月'):
         df.fillna(0, inplace=True)
         # print(df)
     else:
@@ -378,46 +380,42 @@ for month in dfs.keys():
 # %%
 for month in dfs.keys():
     df = dfs[month]
-    line = (
-    Line()
-    .set_global_opts(
-        title_opts =opts.TitleOpts(title="2020年%s地铁公交长客客流" % month),
-        toolbox_opts=opts.ToolboxOpts(is_show=False, orient='vertical', pos_top=40, pos_left=5,
-                                      feature=opts.ToolBoxFeatureOpts
-                                      (save_as_image=opts.ToolBoxFeatureSaveAsImageOpts
-                                          (type_='jpeg', pixel_ratio=2))),
+    line = (Line().set_global_opts(
+        title_opts=opts.TitleOpts(title="2020年%s地铁公交长客客流" % month),
+        toolbox_opts=opts.ToolboxOpts(
+            is_show=False,
+            orient='vertical',
+            pos_top=40,
+            pos_left=5,
+            feature=opts.ToolBoxFeatureOpts(
+                save_as_image=opts.ToolBoxFeatureSaveAsImageOpts(type_='jpeg', pixel_ratio=2))),
         xaxis_opts=opts.AxisOpts(type_="category"),
         yaxis_opts=opts.AxisOpts(
             type_="value",
             axistick_opts=opts.AxisTickOpts(is_show=True),
             splitline_opts=opts.SplitLineOpts(is_show=True),
         ),
-    )
-    .add_xaxis(xaxis_data=['{} 日'.format(i) for i in df['日期'].dt.day])
-    .add_yaxis(
+    ).add_xaxis(xaxis_data=['{} 日'.format(i) for i in df['日期'].dt.day]).add_yaxis(
         series_name="地铁",
         y_axis=df['地铁（人次）'],
         symbol="emptyCircle",
         is_symbol_show=True,
         color="#6e9ef1",
         label_opts=opts.LabelOpts(is_show=False),
-    )
-    .add_yaxis(
+    ).add_yaxis(
         series_name="公交",
         y_axis=df['公交（人次）'],
         symbol="emptyCircle",
         is_symbol_show=True,
         label_opts=opts.LabelOpts(is_show=False),
         markpoint_opts=opts.MarkPointOpts(data=[opts.MarkPointItem(type_="max", name="最高流量")], symbol_size=90),
-    )
-    .add_yaxis(
+    ).add_yaxis(
         series_name="长客",
         y_axis=df['长客（人次）'],
         symbol="emptyCircle",
         is_symbol_show=True,
         label_opts=opts.LabelOpts(is_show=False),
-    )
-    )
+    ))
     line.render('charts/%s客流图.html' % month)
     # if(month=='四月'):
     #    line.render('charts/四月测试.png')
