@@ -78,7 +78,7 @@ def getbusstations(busline_dict, stations_key):
 
 # %% [markdown]
 # ### 坐标转换的代码.
-# TODO: 1.200505:此函数放放在独立的包中.
+# TODO: 1.此函数放放在独立的包中.
 
 # %%
 pi = 3.1415926535897932384626  # π
@@ -144,7 +144,8 @@ def gcj02_to_wgs84(lng, lat):
 
 # %% [markdown]
 #  ### getonebusline-方式2
-# FIXME: 1.200505:公交线路应取所有而不是前两个;
+# TODO: 1.200505:line_no_info.txt的车站看一看json的数据结构.
+# FIXME: 1.200505:公交线路应取所有而不是前两个.
 # %%
 def change_gcj02_in_busline(row, xs, ys):
     xs_value = row[xs]
@@ -217,7 +218,7 @@ def getonebusline2(busline_name):
 
 
 # %% [markdown]
-# 运行多次不断追加原excel文件的内容写入.
+# 写入excel文件,支持运行多次不断追加原excel文件的内容写入.
 # TODO: 1.200505,考虑除excel其他存储形式的文件如parquet.
 # %%
 def write2excel(oldbusline, newbusline, oldstations, newstations):
@@ -231,7 +232,6 @@ def write2excel(oldbusline, newbusline, oldstations, newstations):
 
 # %% [markdown]
 #  ### 共用调用函数前置代码
-#  TODO: 1.200505:把城市代码独立出来.
 # %%
 # buslines = '环路,100,101'
 buslines = '环路,苦茶,100,101'
@@ -273,13 +273,9 @@ for bn in busline_from_excel['xian_lu_ming_cheng']:
     busline_lst.append(bn)
 buslines = ','.join(busline_lst)
 print(buslines)
-
-
 # %% [markdown]
 #  ### getonebusline-调用2
-#  TODO: 1.200505:将没有线路详情的线路输出到文件中,如果是停运的话做标识;2.200505:标识a2b和b2a中途径站不同的线路.
-#  FIXME: 1.200505:抽取的线路append到结果时应去重.
-
+#  #  FIXME: 1.200505:抽取的线路append到结果时应去重.
 # %%
 try:
     exist_busline_lst = list(oldbusline['search_name'])
@@ -302,7 +298,7 @@ print(busline_df.head())
 print('数据汇总:共需抽取[%d]条线路,已抽取到详情[%d]条线路,涉及站点: [%s] 个' %
       (len(buslines.split(',')), len(busline_df) / 2, len(station_df) / 2))
 if(len(line_noinfo) > 0):
-    print('共有: [%d] 条线路--没有详情--, 其线路名称:' % len(line_noinfo))
+    print('共有: [%d] 条线路---没有详情---, 其线路名称:' % len(line_noinfo))
     print(','.join(line_noinfo))
 
 write2excel(oldbusline, busline_df, oldstations, station_df)
