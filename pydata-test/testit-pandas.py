@@ -203,9 +203,9 @@ product_new = pd.merge(product, product_1, on='id', how='right')
 product_new
 
 # %% [markdown]
-# #### 不指定特定的on参数
+# #### 两个df的列相同时不指定on参数(有用)
 # 对全column进行比较,相当于intersection(inner)和unioin(outer)
-# 最后求差集
+# 以及求差集
 # %%
 product_right = pd.merge(product, product_1, how='right')
 product_right
@@ -226,7 +226,7 @@ product_all = pd.merge(product, product_1, how='outer')
 product_all
 # %% [markdown]
 # 注意drop_duplicates的用法,如果求差集,需要先创造重复后,再drop;
-# TODO: 有无更好的方法?isin的应用?
+# TODO: 直接用left和right,不指定on
 # %%
 product_all = product_all.append(product_right, ignore_index=True)
 product_all
@@ -244,15 +244,16 @@ product_con1
 
 # %%
 # 按索引进行累加,理解axis和join的配对使用.
-# axis=0时,inner和outer无差别;
+# axis=0时,由于两个df的列相同,inner和outer无差别;
 # axis=1时,inner指的是按索引一致的进行累加.由原df按条件生成的新列进行累加新的列时有用.
 product_1.loc[product_1['id'] == 110, 'origin'] = 'Japan'
 product_con2 = pd.concat([product, product_1], axis=1, join='inner')
 product_con2
 
 # %%
-# 动态计算新增1列,然后累加.如果是新增2列呢?
-product_new_p = pd.DataFrame((x + '1' for x in product_1['product']), index=product_1.index, columns=['new_p'])
+# 动态计算新增1列,然后累加.
+#  TODO:如果是动态新增2列呢?(代码中新增TODO时,加一个空格)
+product_new_p = pd.DataFrame((x + '_new' for x in product_1['product']), index=product_1.index, columns=['new_p'])
 product_con3 = pd.concat([product_1, product_new_p], axis=1, join='inner')
 product_con3
 # %% [markdown]
