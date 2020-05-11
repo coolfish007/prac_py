@@ -54,9 +54,8 @@ df = pd.DataFrame([[0, 0], [5, 6]], columns=['A', 'B'])
 testdfgo(df)
 print(df)
 
-
 # %% [markdown]
-#  ## dataframe apply函数
+#  ## dataframe apply()的使用
 # %% [markdown]
 #  ### 处理每行的数据后并新增列
 
@@ -98,11 +97,9 @@ def new_value2(row, year, pop):
 frame['new_year'] = frame.apply(lambda row: row['year'] + 5, axis=1)
 frame['new_year'] = frame.apply(lambda row: new_value(row['year']), axis=1)
 
-
 # %%
 frame = frame.apply(new_value1, axis=1)
 print(frame)
-
 
 # %%
 frame['new_year'], frame['new_pop'] = zip(*frame[['year', 'pop']].apply(new_value0, axis=1))
@@ -113,7 +110,6 @@ frame['new_year'], frame['new_pop'] = zip(*frame[['year', 'pop']].apply(new_valu
 frame['new_year'], frame['new_pop'] = zip(*frame[['year', 'pop']].apply(new_value2, axis=1, year='year', pop='pop'))
 # print('result')
 print(frame)
-
 
 # %% [markdown]
 #  ### 理解zip和unzip的使用
@@ -134,7 +130,7 @@ lb = list(zip(*lb))
 print(lb)
 
 # %% [markdown]
-#  ## append函数
+#  ## append()
 #  主要是异常情况的处理
 # %%
 data = {
@@ -165,9 +161,7 @@ if ('123' in writer.sheets):
 else:
     print('无此sheet页')
 # %% [markdown]
-#  ## 合并数据-merge函数的理解和使用
-# %% [markdown]
-# ### 初始化测试数据
+# ## 初始化测试数据
 
 # %%
 product = pd.DataFrame({
@@ -180,7 +174,8 @@ product = pd.DataFrame({
     'department': ['饮料', '饮料', '零食', '调味品', '水果', np.nan, '日用品', '蔬菜', '日用品', '零食'],
     'origin': ['China', ' China', 'America', 'China', 'Thailand', 'China', 'america', 'China', 'China', 'Japan']
 })
-product
+print(type(product))
+product.dtypes
 
 # %%
 product_1 = pd.DataFrame({
@@ -192,9 +187,14 @@ product_1 = pd.DataFrame({
     'origin': ['China', 'China', 'China']
 })
 product_1
+# %% [markdown]
+#  ## 数据的合并
+# %% [markdown] toc-hr-collapsed=true
+#  ### merge()的使用
+#  交集/并集/差集
 
 # %% [markdown]
-# ### 验证merge函数不同参数的用法
+# #### merge()的on和how参数的用法
 # %%
 product_new = pd.merge(product, product_1, on='id', how='inner')
 product_new
@@ -205,13 +205,70 @@ product_new
 # %% [markdown]
 # #### 不指定特定的on参数
 # 对全column进行比较,相当于intersection(inner)和unioin(outer)
+# 最后求差集
+# %%
+product_right = pd.merge(product, product_1, how='right')
+product_right
+# %% [markdown]
+# 增加一列profit
+# %%
+product_2 = product_1.copy()
+product_2['profit'] = 0.12
+product_new = product.merge(product_2, how='right')
+product_new
 # %%
 # 注意110的产地,一个是Japan,一个是China,merge的时候会当成不同数据
-product_new = pd.merge(product, product_1, how='outer')
-product_new
-product_1.loc[product_1['id'] == 110, 'origin'] = 'Japan'
-product_new = pd.merge(product, product_1, how='outer')
-product_new
+product_all = pd.merge(product, product_1, how='outer')
+product_all
 # %%
-# 另一种写法,效果同上.
-product.merge(product_1, how='outer')
+product_1.loc[product_1['id'] == 110, 'origin'] = 'Japan'
+product_all = pd.merge(product, product_1, how='outer')
+product_all
+# %% [markdown]
+# 注意drop_duplicates的用法,如果求差集,需要先创造重复后,再drop;
+# TODO: 有无更好的方法?isin的应用?
+# %%
+product_all = product_all.append(product_right, ignore_index=True)
+product_all
+# %%
+product_all.drop_duplicates(product_right.columns.values, keep=False, inplace=True, ignore_index=True)
+product_all
+# %% [markdown]
+# ### concat()的使用
+# %%
+product_con1 = pd.concat([product, product_1], ignore_index=True)
+product_con1
+# %%
+product_con1 = pd.concat([product, product_1], axis=1)
+product_con1
+
+# %%
+# 按索引进行累加,理解axis和join的配对使用.
+# axis=0时,inner和outer无差别;
+# axis=1时,inner指的是按索引一致的进行累加.由原df按条件生成的新列进行累加新的列时有用.
+product_1.loc[product_1['id'] == 110, 'origin'] = 'Japan'
+product_con2 = pd.concat([product, product_1], axis=1, join='inner')
+product_con2
+
+# %%
+# 动态计算新增1列,然后累加.如果是新增2列呢?
+product_new_p = pd.DataFrame((x + '1' for x in product_1['product']), index=product_1.index, columns=['new_p'])
+product_con3 = pd.concat([product_1, product_new_p], axis=1, join='inner')
+product_con3
+# %% [markdown]
+# ### join()的使用
+
+# %% [markdown]
+# ## 数据的分组
+
+# %% [markdown]
+# ## 数据的选取
+
+# %% [markdown]
+# ## 数据的筛选
+
+# %% [markdown]
+# ## 数据的计数
+
+# %% [markdown]
+# ## 数据的统计值
