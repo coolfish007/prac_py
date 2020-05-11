@@ -235,6 +235,7 @@ product_all.drop_duplicates(product_right.columns.values, keep=False, inplace=Tr
 product_all
 # %% [markdown]
 # ### concat()的使用
+# 可以理解成行或列的简单累加.
 # %%
 product_con1 = pd.concat([product, product_1], ignore_index=True)
 product_con1
