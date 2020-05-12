@@ -78,7 +78,6 @@ def getbusstations(busline_dict, stations_key):
 # %% [markdown]
 # ### 坐标转换的代码.
 # TODO: 1.此函数放放在独立的包中.
-
 # %%
 pi = 3.1415926535897932384626  # π
 a = 6378245.0  # 长半轴
@@ -134,9 +133,7 @@ def gcj02_to_wgs84(lng, lat):
 
 
 # %% [markdown]
-#  ### getonebusline-方式2
-# TODO: 1.200505:line_no_info.txt的车站看一看json的数据结构,并构造合适的公交站名.
-# FIXME 1.200505:公交线路应取所有而不是前两个.--200511改完并测试,但没有全量跑.
+#  ### apply()的方式处理线路和车站的坐标
 # %%
 def change_gcj02_in_busline(row, xs, ys):
     xs_value = row[xs]
@@ -164,6 +161,7 @@ def change_gcj02_in_station(row, xy_coords, poiid2_xy):
     return xy_coords_84_str, poiid2_xy_84_str
 
 
+# 暂时没有调用
 def change_gcj02_in_station2(row, xy_coords, poiid2_xy):
     xy_coords_value = list(map(float, row[xy_coords].split(";")))
     poiid2_xy_value = list(map(float, row[poiid2_xy].split(";")))
@@ -174,6 +172,10 @@ def change_gcj02_in_station2(row, xy_coords, poiid2_xy):
     return xy_coords_84, poiid2_xy_84
 
 
+# %% [markdown]
+# ### getonebusline-方式2
+# TODO: 1.200505:line_no_info.txt的车站看一看json的数据结构,并构造合适的公交站名.
+# FIXME 1.200505:公交线路应取所有而不是前两个.--200511改完并测试,但没有全量跑.
 # %%
 def getonebusline2(busline_search_name):
     busline_url = "https://ditu.amap.com/service/poiInfo?keywords=" + busline_search_name
@@ -213,6 +215,10 @@ def getonebusline2(busline_search_name):
     return busline, oneline_stations
 
 
+# %% [markdown]
+# ### getonebusline-方式3
+# 高德地图中的查询URI是模糊查询,比如使用'环路'查询公交车,含有关键字的公交线路都会被查询出来,由于我们的目的是把所有的公交线路
+# 都获取到,所以每次查询所获得的busline_list里边的内容都需要,同时注意,为了避免之后还有查询的关键字查出同样的内容,使用busline id进行去重.
 # %%
 def getonebusline3(busline_search_name, current_busline_ids):
     busline_url = "https://ditu.amap.com/service/poiInfo?keywords=" + busline_search_name
@@ -266,7 +272,7 @@ def getonebusline3(busline_search_name, current_busline_ids):
 
 # %% [markdown]
 # 写入excel文件,支持运行多次不断追加原excel文件的内容写入.
-# TODO: 1.200505,考虑除excel其他存储形式的文件如parquet.
+# TODO: 1.200505,考虑除excel其他存储形式的文件如HDF5/parquet.
 # %%
 def write2excel(oldbusline, newbusline, oldstations, newstations):
     allbusline = oldbusline.append(newbusline, ignore_index=True)
@@ -364,6 +370,8 @@ print(buslines)
 # %% [markdown]
 #  ### getonebusline-调用2和3
 #  FIXME 1.200505:抽取的线路append到结果时应去重.--200511改完并测试.
+# 公交线路去重的策略是在getonebusline3中筛选,使用isin(),如果之前保存过,则略过线路具体数据的处理.并保留重复线路的信息.
+# 关联公交站点的去重,不需要在日志中保留详细信息,直接使用merge()取并集处理.
 # %%
 try:
     exist_busline_lst = list(busline_df["search_name"])
