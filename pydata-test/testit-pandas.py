@@ -192,6 +192,42 @@ product_1 = pd.DataFrame(
 )
 product_1
 # %% [markdown]
+# ## 数据类型/行与列的理解
+# PD的Series/NP的array,dtype/shape
+# %%
+pd.Series(["1", "1"]).values
+print(pd.Series(["1", "1"]))
+pd.Series(["1", "1"]).values.shape  # (2,) 一维,即一列.
+print(pd.Series(["hello", "hello"], [2, 2]).reset_index())  # (2,),[2,2]是索引,不支持多维.
+# pd.Series(["1", "1"], [1, 1], [3, 33]).values.shape  # (2,)   #此句出错.
+np.array(pd.Series([[1, 1, 1], [2, 2, 2], ["hello", "hello"]]))  # 3个list,dtype=Object.
+np.array(pd.Series([[1, 1, 1], [2, 2, 2], ["hello", "hello"]])).shape  # (3,)
+
+np.array([["a", "a", "a", 1], ["b", "b", "b", 1]]).shape  # 2维,若行长度不一致,则由变为一维(2,)
+
+
+# %%
+# 其实增加列用合并函数挺麻烦的,不如在原df上使用赋值的方式新增列,避免循环.
+# 这中间涉及行与列的思维转换,循环处理的是行,向量的方式处理的是列.所以上边的apply()需要用list的zip函数进行转换.
+product_con3 = product_1.copy()
+product_new_p = product_con3["product"] + "_new"
+print(type(product_new_p))
+print(product_new_p)
+product_new_d = product_con3["department"] + "_new"
+# 这是按列赋值OK,其实就是[][]=[列1][列2]的形式
+product_con3["new_p"], product_con3["new_d"] = product_new_p, product_new_d
+print(product_con3)
+# [[]]的写法是二维的,需要用[[第一行两个值list],[第二行两个值],[第三行两个值]]的形式赋值,所以下面是错误的.
+# product_con3[["new_p", "new_d"]] = [product_new_p, product_new_d]
+print(product_new_p.values)  # ndarray,array(['薯片_new', 'qiqudan_new', 'cho_new'], dtype=object)
+product_new_p.values.shape  # (3,)
+# 对 ndarray的每个元素执行向量化操作
+np.char.add(product_con3["money"].values.astype(str), "@2020")
+nda = np.char.split(product_new_p.values.astype(str), "_")
+nda.shape  # (3,),每个元素type是list,值是:list(['薯片', 'new'])
+print(nda[0])  # ['薯片', 'new']
+print(list(zip(*nda[:])))
+# %% [markdown]
 # ## isin()的使用与数据类型
 # 注意,数据类型不一致,特别是int和str, isin()无法正常匹配,merge()会抛错.
 # %%
@@ -279,6 +315,7 @@ product_new_p = pd.DataFrame((x + "_new" for x in product_1["product"]), index=p
 product_new_d = pd.DataFrame((x + "_new" for x in product_1["department"]), index=product_1.index, columns=["new_d"])
 product_con3 = pd.concat([product_1, product_new_p, product_new_d], axis=1, join="inner")
 product_con3
+
 # %% [markdown]
 # ### join()的使用
 
