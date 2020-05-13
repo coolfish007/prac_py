@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -9,10 +10,16 @@
 #       jupytext_version: 1.4.2
 # ---
 
+# %% [markdown]
+# # Python(cloudant) 与 CouchDB
+
 # %%
 from cloudant.client import CouchDB
 from requests.adapters import HTTPAdapter
 import pandas as pd
+
+# %% [markdown]
+# ## 连接CouchDB
 
 # %%
 httpAdapter = HTTPAdapter(pool_connections=15, pool_maxsize=30)
@@ -29,7 +36,8 @@ print("Username: {0}".format(session["userCtx"]["name"]))
 print("Databases: {0}".format(client.all_dbs()))
 # client.disconnect()
 
-
+# %% [markdown]
+# ## 读取已有的数据库内容
 # %%
 # partitioned=True
 a8684_db = client["sitemap-data-a8684-sy-test"]
@@ -46,5 +54,31 @@ for doc in a8684_db:
         # print(station_df)
         stations_json = station_df.to_json(orient="index")
         print(stations_json)
+
+# %% [markdown]
+# ## 插入与更新数据
+
+# %% [markdown]
+# ### 创建一个数据库,插入数据
+
+# %%
+
+# %% [markdown]
+# ### 更新数据
+
+# %%
+
+# %% [markdown]
+# ### 使用已有数据库记录插入新数据
+
+# %%
+
+# %% [markdown]
+# ### 使用已有数据库记录更新数据
+
+# %%
+
+# %% [markdown]
+# ## 使用view
 
 # %%
