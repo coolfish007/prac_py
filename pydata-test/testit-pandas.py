@@ -31,6 +31,7 @@ except:
 import pandas as pd
 import numpy as np
 from openpyxl import load_workbook
+from IPython.display import display
 
 # %% [markdown]
 #  ## 测试datafrmae传入的变化
@@ -58,6 +59,10 @@ print(df)
 
 # %% [markdown]
 #  ## dataframe apply()的使用
+#  1)简单的操作最好使用向量化的方式;
+#  2)复杂的操作使用apply(),如果使用lambda,分别对每列进行操作;df和column都可以使用apply()
+#  3)如果同时对多列的数据联合操作,使用apply(),单独写一个函数进行操作;
+#  4)不建议使用循环对pandas的行进行遍历;
 # %% [markdown]
 #  ### 处理每行的数据后并新增列
 
@@ -110,8 +115,12 @@ frame["new_year"], frame["new_pop"] = zip(*frame[["year", "pop"]].apply(new_valu
 print(frame)
 
 # %%
-frame["new_year"], frame["new_pop"] = zip(*frame[["year", "pop"]].apply(new_value2, axis=1, args=("year", "pop")))
-frame["new_year"], frame["new_pop"] = zip(*frame[["year", "pop"]].apply(new_value2, axis=1, year="year", pop="pop"))
+frame["new_year"], frame["new_pop"] = zip(
+    *frame[["year", "pop"]].apply(new_value2, axis=1, args=("year", "pop"))
+)
+frame["new_year"], frame["new_pop"] = zip(
+    *frame[["year", "pop"]].apply(new_value2, axis=1, year="year", pop="pop")
+)
 # print('result')
 print(frame)
 
@@ -176,7 +185,18 @@ product = pd.DataFrame(
         "money": [5, 4, 65, 10, 15, 20, 35, 16, 6, 20],
         "product": ["苏打水", "可乐", "牛肉干", "老干妈", "菠萝", "冰激凌", "洗面奶", "洋葱", "牙膏", "薯片"],
         "department": ["饮料", "饮料", "零食", "调味品", "水果", np.nan, "日用品", "蔬菜", "日用品", "零食"],
-        "origin": ["China", " China", "America", "China", "Thailand", "China", "america", "China", "China", "Japan"],
+        "origin": [
+            "China",
+            " China",
+            "America",
+            "China",
+            "Thailand",
+            "China",
+            "america",
+            "China",
+            "China",
+            "Japan",
+        ],
     }
 )
 # %%
@@ -199,20 +219,22 @@ pd.Series(["1", "1"]).values
 print(pd.Series(["1", "1"]))
 pd.Series(["1", "1"]).values.shape  # (2,) 一维,即一列.
 print(pd.Series(["hello", "hello"], [2, 2]).reset_index())  # (2,),[2,2]是索引,不支持多维.
+
 # pd.Series(["1", "1"], [1, 1], [3, 33]).values.shape  # (2,)   #此句出错.
 np.array(pd.Series([[1, 1, 1], [2, 2, 2], ["hello", "hello"]]))  # 3个list,dtype=Object.
 np.array(pd.Series([[1, 1, 1], [2, 2, 2], ["hello", "hello"]])).shape  # (3,)
-
-np.array([["a", "a", "a", 1], ["b", "b", "b", 1]]).shape  # 2维,若行长度不一致,则由变为一维(2,)
+np.array([["a", "a", "a", 1], ["b", "b", "b", 1]]).shape  # 2维(2,4),若行长度不一致,则由变为一维(2,)
 
 
 # %%
 # 其实增加列用合并函数挺麻烦的,不如在原df上使用赋值的方式新增列,避免循环.
 # 这中间涉及行与列的思维转换,循环处理的是行,向量的方式处理的是列.所以上边的apply()需要用list的zip函数进行转换.
 product_con3 = product_1.copy()
+print((product_con3.info()))
+print(type(product_con3["product"]))  # pandas的列是Series
+print(product_con3["product"].dtypes)  # 数据类型是object,字符串以及混合的类型一般是object
+print(product_con3["product"].apply(type))  # 查看此列每一个元素的类型,还可以新增一列显示类型
 product_new_p = product_con3["product"] + "_new"
-print(type(product_new_p))
-print(product_new_p)
 product_new_d = product_con3["department"] + "_new"
 # 这是按列赋值OK,其实就是[][]=[列1][列2]的形式
 product_con3["new_p"], product_con3["new_d"] = product_new_p, product_new_d
@@ -222,7 +244,7 @@ print(product_con3)
 print(product_new_p.values)  # ndarray,array(['薯片_new', 'qiqudan_new', 'cho_new'], dtype=object)
 product_new_p.values.shape  # (3,)
 # 对 ndarray的每个元素执行向量化操作
-np.char.add(product_con3["money"].values.astype(str), "@2020")
+np.char.add(product_con3["money"].values.astype(str), "@2020")  # 强制转换类型
 nda = np.char.split(product_new_p.values.astype(str), "_")
 nda.shape  # (3,),每个元素type是list,值是:list(['薯片', 'new'])
 print(nda[0])  # ['薯片', 'new']
@@ -240,7 +262,11 @@ product_small = pd.DataFrame({"product": ["菠萝1", "qiqudan", "牛肉干1"], "
 print(type(product_small["money"]))
 # searched_stations = searched_stations.astype({"station_id": "int", "busline_id": "int"})
 df_isin = product_small["money"].astype("int").isin(product["money"])
-tmp = list((product_small[df_isin]["product"])) if len((product_small[df_isin]["product"])) > 0 else []
+tmp = (
+    list((product_small[df_isin]["product"]))
+    if len((product_small[df_isin]["product"])) > 0
+    else []
+)
 redup += tmp
 redup += tmp
 print(len(redup))
@@ -252,12 +278,37 @@ print(len(redup))
 
 # %% [markdown]
 # #### merge()的on和how参数的用法
+# merge()等同于SQL的join
+# 如果想针对index进行比较合并,可以用join更简单,其默认行为就是针对index进行合并.
+# 如果想对全列进行比较合并,可以用merge更简单,其默认行为.
+# 对某些列进行比较合并,用join更直接一些,无需明确指定left或right,按调用顺序来,注意在指定on之外进行set_index()操作.
 # %%
-product_new = pd.merge(product, product_1, on="id", how="inner")
-product_new
+# 针对id的inner merge,id匹配的行,除id外其两边的列都在结果中,没有的补Na
+p_merge_inner_r = pd.merge(product, product_1, on="id", how="inner")
+display(p_merge_inner_r)
+p_merge = product_1.copy()
+p_merge.loc[0, "origin"] = "Japan"
+display(p_merge)
+p_merge_inner_r = pd.merge(product, p_merge, on="id", how="inner")
+display(p_merge_inner_r)
 # %%
-product_new = pd.merge(product, product_1, on="id", how="right")
-product_new
+# 针对id的right merge,右边的行全列出,除id之外的两边的列都在结果中,没有的补Na.
+p_merge_right_r = pd.merge(product, product_1, on="id", how="right")
+display(p_merge_right_r)
+# 想当然的想看一下针对index的right merge,一下这句是错误的,注意.
+# p_merge_right_r = pd.merge(product, product_1, on="index", how="right")
+# display(p_merge_right_r)
+
+p_merge = product_1.copy()
+p_merge.loc[0, "origin"] = "Japan"
+display(p_merge)
+# 以下的两个写法结果的值一样,只是左右不同.
+# 此写法与on='id'的join效果一致.相当与右连接.
+# on的参数多个列时,可以用['id','product']的方式.
+p_merge_right_r = pd.merge(product, p_merge, on="id", how="right")
+display(p_merge_right_r)
+p_merge_right_r = pd.merge(p_merge, product, on="id", how="left")
+display(p_merge_right_r)
 
 # %% [markdown]
 # #### 两个df的列相同时不指定on参数(有用)
@@ -288,36 +339,67 @@ product_all
 product_all = product_all.append(product_right, ignore_index=True)
 product_all
 # %%
-product_all.drop_duplicates(product_right.columns.values, keep=False, inplace=True, ignore_index=True)
+product_all.drop_duplicates(
+    product_right.columns.values, keep=False, inplace=True, ignore_index=True
+)
 product_all
 # %% [markdown]
 # ### concat()的使用
 # 可以理解成行或列的累加.
 # %%
+# 按行简单累加,等同与append(),注意ignore_index
 product_con1 = pd.concat([product, product_1], ignore_index=True)
 product_con1
 # %%
+# 按列累加,没有的值补充Na
 product_con1 = pd.concat([product, product_1], axis=1)
-product_con1
+display(product_con1)
+product_con1 = pd.concat([product_1, product], axis=1)
+display(product_con1)
 
 # %%
 # 按索引进行累加,理解axis和join的配对使用.
 # axis=0时,由于两个df的列相同,inner和outer无差别;
 # axis=1时,inner指的是按索引一致的进行累加.由原df按条件生成的新列进行累加新的列时有用.
+# 如果按匹配值进行合并操作,建议用merge或join,concat只进行累加.
 product_1.loc[product_1["id"] == 110, "origin"] = "Japan"
 product_con2 = pd.concat([product, product_1], axis=1, join="inner")
 product_con2
 
 # %%
 # 动态计算新增1列,然后累加.
-#  TODO:如果是一行代码动态新增2列呢?(代码中新增TODO时,加一个空格,否则在ipynb中不支持)
-product_new_p = pd.DataFrame((x + "_new" for x in product_1["product"]), index=product_1.index, columns=["new_p"])
-product_new_d = pd.DataFrame((x + "_new" for x in product_1["department"]), index=product_1.index, columns=["new_d"])
+# 以下的写法并不推荐,建议直接对列的值向量化操作并赋值给新的列.
+product_new_p = pd.DataFrame(
+    (x + "_new" for x in product_1["product"]), index=product_1.index, columns=["new_p"]
+)
+product_new_d = pd.DataFrame(
+    (x + "_new" for x in product_1["department"]), index=product_1.index, columns=["new_d"]
+)
 product_con3 = pd.concat([product_1, product_new_p, product_new_d], axis=1, join="inner")
 product_con3
-
 # %% [markdown]
 # ### join()的使用
+# %%
+p_join = product.copy()
+# display(p_join)  # 显示df的边框,from IPython.display import display
+p1_join = product_1.copy()
+# display(p1_join)
+# 与merge()一样,默认对index进行操作.
+# 结果中只有caller的行,以及两者所有列.
+p1_join_r = p1_join.join(p_join, lsuffix="_caller", rsuffix="_right")
+display(p1_join_r)
+
+p1_join_on_r = p1_join.join(p_join.set_index("id"), on="id", lsuffix="_caller", rsuffix="_right")
+display(p1_join_on_r)  # 默认是left,如果指定on,一定对被join df进行set_index()
+
+# 只针对id进行inner join(),无论id外列的值是否相同,都会在结果中.
+# 多列的写法如:on=['id','product']
+# p1_join.loc[0, "origin"] = "Japan"
+p1_join_on_inner_r = p1_join.join(
+    p_join.set_index("id"), on="id", lsuffix="_caller", rsuffix="_right", how="inner"
+)
+display(p1_join_on_inner_r)
+
 
 # %% [markdown]
 # ## 数据的分组
