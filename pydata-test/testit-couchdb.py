@@ -62,22 +62,76 @@ for doc in a8684_db:
 # ### 创建一个数据库,插入数据
 
 # %%
-
-# %% [markdown]
-# ### 更新数据
+test_db = client.create_database("test_db")
+if test_db.exists():
+    print("Success.")
 
 # %%
-
+document_key = "julia30"
+julia30 = test_db.create_document({"_id": document_key, "name": "Jules", "age": 6})
+if julia30.exists():
+    print("Create Successfully.")
+# %% [markdown]
+# ### 按key查询数据并更新
+# julia30 = test_db["julia30"]
+# print(julia30)
+# julia30["pet"] = ["cat", "dog", "frog"]
+# julia30["age"] = 8
+# julia30.save()
+# julia30["pet"] = ["cat", "dog", "frog"]
+# julia30.save()
+# %%
+julia30 = test_db["julia30"]
+print(type(julia30["name"]), type(julia30["age"]), type(julia30["pet"]))
+print(julia30["pet"])
 # %% [markdown]
 # ### 使用已有数据库记录插入新数据
+# bob20 = julia30.copy()
+# bob20["_id"] = "bob20"
+# bob20["name"] = "bob"
+# bob20["age"] = 7
+# bob20_doc = test_db.create_document(bob20)
+# if bob20_doc.exists():
+#     print("Create bob sucessfully.")
+# %%
+tom21 = bob20
+tom21["_id"] = "tom21"
+tom21["name"] = "tom"
+tom21["age"] = 7
+tom21_doc = test_db.create_document(bob20)
+if tom21_doc.exists():
+    print("Create bob sucessfully.")
 
 # %%
-
-# %% [markdown]
-# ### 使用已有数据库记录更新数据
+# 不仅修改,新增一列
+john23 = bob20
+john23["_id"] = "john23"
+john23["name"] = "john"
+john23["age"] = 7
+john23["book"] = ["English", "math"]
+john23_doc = test_db.create_document(bob20)
+if john23_doc.exists():
+    print("Create bob sucessfully.")
 
 # %%
+tom21_doc = test_db["tom21"]
+print(type(tom21_doc))
+print("tom's book:%s:" % ",".join(tom21_doc["book"])) if "book" in tom21_doc else print(
+    "tom has no book."
+)
+client.disconnect()
 
+# %%
+# 重新连接
+client.connect()
+session = client.session()
+print("Username: {0}".format(session["userCtx"]["name"]))
+print("Databases: {0}".format(client.all_dbs()))
+test_db = client["test_db"]
+# %%
+tom21_doc = test_db["tom21"]
+tom21_doc["_id"] = "tom24"  # 直接新增一条记录,其他内容复制tom21_doc
+tom21_doc.save()
 # %% [markdown]
 # ## 使用view
 
