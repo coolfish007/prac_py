@@ -199,6 +199,7 @@ product = pd.DataFrame(
         ],
     }
 )
+display(product)
 # %%
 product_1 = pd.DataFrame(
     {
@@ -404,18 +405,39 @@ display(p1_join_on_inner_r)
 # %% [markdown]
 # ## 数据的分组
 # %%
-p_group = product.groupby("department")  # 注意返回的是df,index是department
-display(p_group.count().info())
-display(p_group.count()["money"])  # DataFrameGroupBy 没有可显示的内容,所以看count()
-display(p_group["money"].size())  # 可以直接调用Series的方法或agg()聚合
+p_bydepart = product.groupby("department")  # 注意返回的是df,index是department
+display(p_bydepart.count().info())
+display(p_bydepart.count()["money"])  # DataFrameGroupBy 没有可显示的内容,所以看count()
+display(p_bydepart["money"].count())  # 这两者的写法一致
+
+
+# %%
+# DataFrameGroupBy是包装的对象,lazy,直到具体计算时才获取其具体值.
+# One useful way to inspect a Pandas GroupBy object and see the splitting in
+# action is to iterate over it. This is implemented in
+# DataFrameGroupBy.__iter__() and produces an iterator of
+# (group, DataFrame) pairs for DataFrames:
+# split-apply-combine方法进行其中的数据处理.
+display(p_bydepart.groups["零食"])  # 零食这一组包含的元素的index
+display(product.loc[p_bydepart.groups["零食"]])  # 这一组还是员df的值
+department, df = next(iter(p_bydepart))  # 迭代分组的第一个元素
+display(department, df)  # 这个df就是某一组的dataframe
+display(df["money"].count())  # 与上一个cell的['money']的'零食'计数一致
+
+# %%
+# 对分组的值进行基本的统计计算
+display(p_bydepart["money"].size())  # 可以直接调用Series的方法或agg()聚合
 # 对聚合的一个列应用不同的聚合函数
-display(p_group["money"].agg([len, np.sum, np.mean]))  # 数量(个数),算数和,算数平均值
+display(p_bydepart["money"].agg([len, np.sum, np.mean]))  # 数量(个数),算数和,算数平均值
 # 对聚合的不同的列应用不同的聚合函数,字符串类型的product没有len方法.
-display(p_group.agg({"money": "sum", "product": "size"}))
+display(p_bydepart.agg({"money": "sum", "product": "size"}))
 
-p_group = product.groupby(["department", "origin"]).count()
-display(p_group)
+p_bydepart = product.groupby(["department", "origin"]).count()
+display(p_bydepart)
 
+# %%
+# 对分组进行apply()计算
+# 实际上,以上的count()和各种计算都是apply()的方式
 
 # %% [markdown]
 # ## 数据的选取
