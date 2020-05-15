@@ -403,6 +403,19 @@ display(p1_join_on_inner_r)
 
 # %% [markdown]
 # ## 数据的分组
+# %%
+p_group = product.groupby("department")  # 注意返回的是df,index是department
+display(p_group.count().info())
+display(p_group.count()["money"])  # DataFrameGroupBy 没有可显示的内容,所以看count()
+display(p_group["money"].size())  # 可以直接调用Series的方法或agg()聚合
+# 对聚合的一个列应用不同的聚合函数
+display(p_group["money"].agg([len, np.sum, np.mean]))  # 数量(个数),算数和,算数平均值
+# 对聚合的不同的列应用不同的聚合函数,字符串类型的product没有len方法.
+display(p_group.agg({"money": "sum", "product": "size"}))
+
+p_group = product.groupby(["department", "origin"]).count()
+display(p_group)
+
 
 # %% [markdown]
 # ## 数据的选取

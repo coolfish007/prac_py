@@ -59,7 +59,7 @@ for doc in a8684_db:
 # ## 插入与更新数据
 
 # %% [markdown]
-# ### 创建一个数据库,插入数据
+# ### 创建一个数据库并新建数据
 
 # %%
 test_db = client.create_database("test_db")
@@ -80,19 +80,20 @@ if julia30.exists():
 # julia30.save()
 # julia30["pet"] = ["cat", "dog", "frog"]
 # julia30.save()
+# %% [markdown]
+# ### 查询(by key)新增删除数据
 # %%
 julia30 = test_db["julia30"]
 print(type(julia30["name"]), type(julia30["age"]), type(julia30["pet"]))
 print(julia30["pet"])
-# %% [markdown]
-# ### 使用已有数据库记录插入新数据
-# bob20 = julia30.copy()
-# bob20["_id"] = "bob20"
-# bob20["name"] = "bob"
-# bob20["age"] = 7
-# bob20_doc = test_db.create_document(bob20)
-# if bob20_doc.exists():
-#     print("Create bob sucessfully.")
+# %%
+bob20 = julia30.copy()  # 实际上不用copy()
+bob20["_id"] = "bob20"
+bob20["name"] = "bob"
+bob20["age"] = 7
+bob20_doc = test_db.create_document(bob20)
+if bob20_doc.exists():
+    print("Create bob sucessfully.")
 # %%
 tom21 = bob20
 tom21["_id"] = "tom21"
@@ -114,6 +115,7 @@ if john23_doc.exists():
     print("Create bob sucessfully.")
 
 # %%
+# 验证某列是否存在.并断开连接.
 tom21_doc = test_db["tom21"]
 print(type(tom21_doc))
 print("tom's book:%s:" % ",".join(tom21_doc["book"])) if "book" in tom21_doc else print(
@@ -129,10 +131,13 @@ print("Username: {0}".format(session["userCtx"]["name"]))
 print("Databases: {0}".format(client.all_dbs()))
 test_db = client["test_db"]
 # %%
+# 修改_id,直接新增一条记录,其他内容复制tom21_doc,有点意外.
 tom21_doc = test_db["tom21"]
-tom21_doc["_id"] = "tom24"  # 直接新增一条记录,其他内容复制tom21_doc
+tom21_doc["_id"] = "tom24"
 tom21_doc.save()
+# %%
+# 删除数据
 # %% [markdown]
-# ## 使用view
+# ## Dealing with results
 
 # %%
