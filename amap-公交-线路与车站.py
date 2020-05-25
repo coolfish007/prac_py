@@ -25,9 +25,14 @@
 import math
 import time
 import random
+import json
 import requests
 import pandas as pd
 from openpyxl import load_workbook
+from cloudant import couchdb
+from cloudant.client import CouchDB
+from cloudant.document import Document
+from requests.adapters import HTTPAdapter
 
 # %%
 headers = {
@@ -95,7 +100,14 @@ def out_of_china(lng, lat):
 
 
 def _transformlat(lng, lat):
-    ret = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * math.sqrt(math.fabs(lng))
+    ret = (
+        -100.0
+        + 2.0 * lng
+        + 3.0 * lat
+        + 0.2 * lat * lat
+        + 0.1 * lng * lat
+        + 0.2 * math.sqrt(math.fabs(lng))
+    )
     ret += (20.0 * math.sin(6.0 * lng * pi) + 20.0 * math.sin(2.0 * lng * pi)) * 2.0 / 3.0
     ret += (20.0 * math.sin(lat * pi) + 40.0 * math.sin(lat / 3.0 * pi)) * 2.0 / 3.0
     ret += (160.0 * math.sin(lat / 12.0 * pi) + 320 * math.sin(lat * pi / 30.0)) * 2.0 / 3.0
@@ -103,7 +115,14 @@ def _transformlat(lng, lat):
 
 
 def _transformlng(lng, lat):
-    ret = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * math.sqrt(math.fabs(lng))
+    ret = (
+        300.0
+        + lng
+        + 2.0 * lat
+        + 0.1 * lng * lng
+        + 0.1 * lng * lat
+        + 0.1 * math.sqrt(math.fabs(lng))
+    )
     ret += (20.0 * math.sin(6.0 * lng * pi) + 20.0 * math.sin(2.0 * lng * pi)) * 2.0 / 3.0
     ret += (20.0 * math.sin(lng * pi) + 40.0 * math.sin(lng / 3.0 * pi)) * 2.0 / 3.0
     ret += (150.0 * math.sin(lng / 12.0 * pi) + 300.0 * math.sin(lng / 30.0 * pi)) * 2.0 / 3.0
@@ -199,7 +218,10 @@ def getonebusline2(busline_search_name):
             i = 0
             while i < 2:
                 tmp = getbusstations(busline_dict[i], "stations")
-                print("--抽取公交线路:[%s-%s]的站点,此线路共有[%d]个站点" % (busline_search_name, busline.iloc[i]["type"], len(tmp)))
+                print(
+                    "--抽取公交线路:[%s-%s]的站点,此线路共有[%d]个站点"
+                    % (busline_search_name, busline.iloc[i]["type"], len(tmp))
+                )
                 # print(','.join(tmp['name']))
                 tmp["busline_id"] = busline.iloc[i]["id"]
                 tmp["order"] = tmp.index
@@ -236,7 +258,9 @@ def getonebusline3(busline_search_name, current_busline_ids):
             line_redup_bol = busline["id"].astype("int").isin(current_busline_ids)
             # 不能用append,空白的list也是一个list
             # line_redup_lst.append(list(busline[line_redup_bol]['id']))
-            line_redup_lst = list(busline[line_redup_bol]["id"]) if len(busline[line_redup_bol]) > 0 else []
+            line_redup_lst = (
+                list(busline[line_redup_bol]["id"]) if len(busline[line_redup_bol]) > 0 else []
+            )
             busline = busline[~line_redup_bol]
             print("--抽取公交线路(双向):[%s]的详情,去重后共有[%d]条线路" % (busline_search_name, len(busline)))
             if len(busline) > 0:
@@ -268,6 +292,42 @@ def getonebusline3(busline_search_name, current_busline_ids):
     else:
         print("$$没有查询到公交线路:[%s]" % busline_search_name)
     return busline, oneline_stations, line_redup_lst
+
+
+# %% [markdown]
+#
+#
+# %%
+def getonebusline_from_amap(busline_search_name):
+    busline_url = "https://ditu.amap.com/service/poiInfo?keywords=" + busline_search_name
+    response = requests.get(busline_url, headers=headers, params=params)
+    data = response.json()
+    return data
+
+
+def getonetransportline_to_couchdb(busline_search_name, from_8684):
+    selector_key = "name_in_8684" if from_8684 else "search_name"
+    selector = {selector_key: {"$eq": busline_search_name}}
+    with couchdb("admin", "admin1", url="http://127.0.0.1:5984") as client:
+        amap_transport_db = client.create_database("amap_transport_line")
+        result_list = amap_transport_db.get_query_result(selector)
+        if len(result_list) == 0:
+            data = getonebusline_from_amap(busline_search_name)
+            if data["data"]["message"] and data["data"]["busline_list"]:
+                transport_line_list = data["data"]["busline_list"]
+                for line_dict in transport_line_list:
+                    with Document(amap_transport_db, line_dict["id"]) as doc:
+                        if not doc.exists():
+                            doc["search_name"] = busline_search_name
+                            doc["name_in_8684"] = busline_search_name
+                            doc["amap_busline_info"] = json.dumps(line_dict)
+                            doc["insert_datetime"] = time.strftime(
+                                "%Y-%m-%d %H:%M:%S", time.localtime(time.time())
+                            )
+                            doc["update_datetime"] = "0"
+                        else:
+                            # 高德地图的线路内容更新
+                            pass
 
 
 # %% [markdown]
