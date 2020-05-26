@@ -299,18 +299,25 @@ def getonebusline3(busline_search_name, current_busline_ids):
 #
 # %%
 def getonebusline_from_amap(busline_search_name):
-    busline_url = "https://ditu.amap.com/service/poiInfo?keywords=" + busline_search_name
-    response = requests.get(busline_url, headers=headers, params=params)
-    data = response.json()
-    return data
+    # data = {"busline": "amap_KeyError"}
+    try:
+        busline_url = "https://ditu.amap.com/service/poiInfo?keywords=" + busline_search_name
+        response = requests.get(busline_url, headers=headers, params=params)
+        return response.json()
+    except KeyError:
+        print("--高德限制IP错误, 查询名称: {0} --".format(busline_search_name))
+        raise KeyError
 
 
+# TODO: 需观察数据,查询的线路名称是模糊名称,在amap中会查询出多条线路;
+# 若某次在amap中查询出,而在CouchDB中没有完全保存,则下次在CouchDB中查重,有可能会造成
+# 数据丢失; 比如调试的中断/CouchDB的中断;
 def getonetransportline_to_couchdb(busline_search_name, from_8684):
     selector_key = "name_in_8684" if from_8684 else "search_name"
     selector = {selector_key: {"$eq": busline_search_name}}
     with couchdb("admin", "admin1", url="http://127.0.0.1:5984") as client:
         amap_transport_db = client.create_database("amap_transport_line")
-        result_list = amap_transport_db.get_query_result(selector)
+        result_list = amap_transport_db.get_query_result(selector).all()
         if len(result_list) == 0:
             data = getonebusline_from_amap(busline_search_name)
             if data["data"]["message"] and data["data"]["busline_list"]:
@@ -320,6 +327,7 @@ def getonetransportline_to_couchdb(busline_search_name, from_8684):
                         if not doc.exists():
                             doc["search_name"] = busline_search_name
                             doc["name_in_8684"] = busline_search_name
+                            doc["name_in_amap"] = line_dict["name"]
                             doc["amap_busline_info"] = json.dumps(line_dict)
                             doc["insert_datetime"] = time.strftime(
                                 "%Y-%m-%d %H:%M:%S", time.localtime(time.time())
@@ -328,6 +336,11 @@ def getonetransportline_to_couchdb(busline_search_name, from_8684):
                         else:
                             # 高德地图的线路内容更新
                             pass
+                return {OK_SEARCH_RESULT: busline_search_name}
+            else:
+                return {NO_SEARCH_RESULT: busline_search_name}
+        else:
+            return {DUPLICATE_SEARCH: busline_search_name}
 
 
 # %% [markdown]
@@ -355,7 +368,7 @@ def write2excel2(newbusline, newstations):
 #  ### 共用调用函数前置代码
 # %%
 # buslines = '环路,100,101'
-buslines = "环路,苦茶,100,101"
+buslines = "环路,苦茶,100,101,100"
 busline_df_column = [
     "id",
     "code",
@@ -393,10 +406,30 @@ station_df_column = [
 ]
 busline_df = pd.DataFrame(columns=busline_df_column)
 station_df = pd.DataFrame(columns=station_df_column)
+NO_SEARCH_RESULT = "no_search_result"
+DUPLICATE_SEARCH = "duplicate_search"
+OK_SEARCH_RESULT = "ok_search_result"
 line_noinfo = []
 line_redupinfo = []
+line_result_dict = {NO_SEARCH_RESULT: [], DUPLICATE_SEARCH: [], OK_SEARCH_RESULT: []}
 
 # %% [markdown]
+# 从CouchDB中来,到CouchDB中去
+# %%
+try:
+    for busline_search_name in buslines.split(","):
+        result = getonetransportline_to_couchdb(busline_search_name, False)
+        line_result_dict[list(result.keys())[0]].append(list(result.values())[0])
+except KeyError as e:
+    print("Got a KeyError - reason %s" % str(e))
+for k, v in line_result_dict.items():
+    print("--查询线路结果类型:%s;数量%d;详情:%s" % (k, len(v), ",".join(v) if len(v) > 0 else "无此类线路结果."))
+    print("\n")
+
+
+# %% [markdown]
+# ### 从Excel文件中来,到文件中去
+# #### 从文件读取待提取线路信息
 # 从excel文件中读取线路名称,为了和下面代码兼容,组成字符串:'环路,101,100'的形式.
 
 # %%
@@ -428,7 +461,7 @@ buslines = ",".join(busline_from_excel["xian_lu_ming_cheng"].astype("str"))
 buslines = "环路,苦茶,100"
 print(buslines)
 # %% [markdown]
-#  ### getonebusline-调用2和3
+#  ### getonebusline-调用2和3,结果处理,无效数据汇总,写入excel文件.
 #  FIXME 1.200505:抽取的线路append到结果时应去重.--200511改完并测试.
 # 公交线路去重的策略是在getonebusline3中筛选,使用isin(),如果之前保存过,则略过线路具体数据的处理.并保留重复线路的信息.
 # 关联公交站点的去重,不需要在日志中保留详细信息,直接使用merge()取并集处理.
