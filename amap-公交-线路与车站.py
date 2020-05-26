@@ -67,6 +67,7 @@ params = (
     ("geoobj", "123.395895|41.775079|123.459137|41.806199"),
 )
 
+
 # %% [markdown]
 #  ### getbusstations
 
@@ -413,6 +414,7 @@ line_noinfo = []
 line_redupinfo = []
 line_result_dict = {NO_SEARCH_RESULT: [], DUPLICATE_SEARCH: [], OK_SEARCH_RESULT: []}
 
+
 # %% [markdown]
 # 从CouchDB中来,到CouchDB中去
 # %%
@@ -425,13 +427,10 @@ except KeyError as e:
 for k, v in line_result_dict.items():
     print("--查询线路结果类型:%s;数量%d;详情:%s" % (k, len(v), ",".join(v) if len(v) > 0 else "无此类线路结果."))
     print("\n")
-
-
 # %% [markdown]
 # ### 从Excel文件中来,到文件中去
 # #### 从文件读取待提取线路信息
 # 从excel文件中读取线路名称,为了和下面代码兼容,组成字符串:'环路,101,100'的形式.
-
 # %%
 f_name = "data/沈阳公交相关/hgj_gong_jiao_xian_lu.xlsx"
 book = load_workbook(f_name)
@@ -460,6 +459,8 @@ if busline_sheet_name in writer.sheets:
 buslines = ",".join(busline_from_excel["xian_lu_ming_cheng"].astype("str"))
 buslines = "环路,苦茶,100"
 print(buslines)
+
+
 # %% [markdown]
 #  ### getonebusline-调用2和3,结果处理,无效数据汇总,写入excel文件.
 #  FIXME 1.200505:抽取的线路append到结果时应去重.--200511改完并测试.

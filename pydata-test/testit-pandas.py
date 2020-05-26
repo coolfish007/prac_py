@@ -281,7 +281,7 @@ print(len(redup))
 # #### merge()的on和how参数的用法
 # merge()等同于SQL的join
 # 如果想针对index进行比较合并,可以用join更简单,其默认行为就是针对index进行合并.
-# 如果想对全列进行比较合并,可以用merge更简单,其默认行为.
+# 如果想对全列进行比较合并,可以用merge更简单,不指定on参数其其默认行为.
 # 对某些列进行比较合并,用join更直接一些,无需明确指定left或right,按调用顺序来,注意在指定on之外进行set_index()操作.
 # %%
 # 针对id的inner merge,id匹配的行,除id外其两边的列都在结果中,没有的补Na
@@ -335,7 +335,7 @@ product_all = pd.merge(product, product_1, how="outer")
 product_all
 # %% [markdown]
 # 注意drop_duplicates的用法,如果求差集,需要先创造重复后,再drop;
-# TODO: 直接用left和right,不指定on实现两个集合左右差集
+# 直接用left和right,不指定on实现两个集合左右差集
 # %%
 product_all = product_all.append(product_right, ignore_index=True)
 product_all
