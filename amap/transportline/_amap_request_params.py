@@ -1,0 +1,31 @@
+headers = {
+    "authority": "ditu.amap.com",
+    "accept": "*/*",
+    "x-csrf-token": "b20895a13b20f5e8e4b4a66ee5006bda",
+    "x-requested-with": "XMLHttpRequest",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36",
+    "amapuuid": "1440c18d-8262-4b10-bf1d-dcfa90af7406",
+    "sec-fetch-site": "same-origin",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-dest": "empty",
+    "referer": "https://ditu.amap.com/search?query=%E7%8E%AF%E8%B7%AF&city=210100&geoobj=123.235132%7C41.790515%7C123.583626%7C41.961776&zoom=11.66",
+    "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
+    "cookie": "UM_distinctid=1714efec5d91ad-0dcddda99ab246-396a7f06-fa000-1714efec5da7ca; cna=BEnxFtRzAkoCAXFCoBgfzgXk; CNZZDATA1255827602=412918052-1586405683-https%253A%252F%252Flbs.amap.com%252F%7C1586418799; _ga=GA1.2.1633570714.1587224095; passport_login=MzE2OTE2MSxhbWFwNW9mbjlkRVUsMnhsNzQzdXFqN2kzdmpyeXR6NWxjcWZieWd4MmZzemYsMTU4NzYxMTcxMixaVEJsTWpSa016UTBZelJqTldKall6WmtPVEJpWmpFeU4ySmtaR0V5TjJRPQ%3D%3D; oauth_state=ae8fa31ae280a2a0e644142c408b11cd; dev_help=Cm5hSMAkvpmaraCOySAMG2UwNDMyNTczMWE0OGI5ODIwNzIwYmViN2NjNmQ0NDE4N2E1NzZjMTUwMmRhNDlhMTQ3MzMwZjVhZmE4YTc5NTEus7mSrdBi1mHDTTh7gNwboXIGicOxRQcgdcUXFEULilQ2nc8zq%2BQ9cZkm1Nb3j0GTZnjb7yMdphosNOkRy%2F6ikMiSMXzZNCnLuZnVvfNkX4LBtvXzfH9D8hHbzRUHWbs%3D; guid=73b2-4fdc-b9ff-d417; x-csrf-token=b20895a13b20f5e8e4b4a66ee5006bda; CNZZDATA1255626299=500121251-1586274166-https%253A%252F%252Flbs.amap.com%252F%7C1588604569; l=eBPMb8PRQmIP7Q_bBO5Zhurza7793IdfcsPzaNbMiIHca1zPJFMJpNQcksVW6dtjgtCj5h-P8XiKbR3DJIzNwtrsywzdDt9x3xvR.; isg=BDc3615dJb7myKEODk0RW8eoxi2B_AteJmOE24nlwYZtOF96hsxXrtFaHphm0OPW",
+    "if-none-match": 'W/"1b6f7-SoSjGUlTkPIxfxEeqavxip5gXtY"',
+}
+
+params = (
+    ("query_type", "TQUERY"),
+    ("pagesize", "20"),
+    ("pagenum", "1"),
+    ("qii", "true"),
+    ("cluster_state", "5"),
+    ("need_utd", "true"),
+    ("utd_sceneid", "1000"),
+    ("div", "PC1000"),
+    ("addr_poi_merge", "true"),
+    ("is_classify", "true"),
+    ("zoom", "14.12"),
+    ("city", "210100"),
+    ("geoobj", "123.395895|41.775079|123.459137|41.806199"),
+)

@@ -25,14 +25,9 @@
 import math
 import time
 import random
-import json
 import requests
 import pandas as pd
 from openpyxl import load_workbook
-from cloudant import couchdb
-from cloudant.client import CouchDB
-from cloudant.document import Document
-from requests.adapters import HTTPAdapter
 
 # %%
 headers = {
@@ -296,57 +291,6 @@ def getonebusline3(busline_search_name, current_busline_ids):
 
 
 # %% [markdown]
-#
-#
-# %%
-def getonebusline_from_amap(busline_search_name):
-    # data = {"busline": "amap_KeyError"}
-    try:
-        busline_url = "https://ditu.amap.com/service/poiInfo?keywords=" + busline_search_name
-        response = requests.get(busline_url, headers=headers, params=params)
-        return response.json()
-    except KeyError:
-        print("--高德限制IP错误, 查询名称: {0} --".format(busline_search_name))
-        raise KeyError
-
-
-# TODO: 需观察数据,查询的线路名称是模糊名称,在amap中会查询出多条线路;
-# 若某次在amap中查询出,而在CouchDB中没有完全保存,则下次在CouchDB中查重,有可能会造成
-# 数据丢失; 比如调试的中断/CouchDB的中断;
-# 目前这样做的好处是尽量少的去amap爬取;
-# 安全的做法是如getonebusline3(),爬取后按busline的id去重.
-def getonetransportline_to_couchdb(busline_search_name, from_8684):
-    selector_key = "name_in_8684" if from_8684 else "search_name"
-    selector = {selector_key: {"$eq": busline_search_name}}
-    with couchdb("admin", "admin1", url="http://127.0.0.1:5984") as client:
-        amap_transport_db = client.create_database("amap_transport_line")
-        result_list = amap_transport_db.get_query_result(selector).all()
-        if len(result_list) == 0:
-            data = getonebusline_from_amap(busline_search_name)
-            if data["data"]["message"] and data["data"]["busline_list"]:
-                transport_line_list = data["data"]["busline_list"]
-                for line_dict in transport_line_list:
-                    with Document(amap_transport_db, line_dict["id"]) as doc:
-                        if not doc.exists():
-                            doc["search_name"] = busline_search_name
-                            doc["name_in_8684"] = busline_search_name
-                            doc["name_in_amap"] = line_dict["name"]
-                            doc["amap_busline_info"] = json.dumps(line_dict)
-                            doc["insert_datetime"] = time.strftime(
-                                "%Y-%m-%d %H:%M:%S", time.localtime(time.time())
-                            )
-                            doc["update_datetime"] = "0"
-                        else:
-                            # 高德地图的线路内容更新
-                            pass
-                return {OK_SEARCH_RESULT: busline_search_name}
-            else:
-                return {NO_SEARCH_RESULT: busline_search_name}
-        else:
-            return {DUPLICATE_SEARCH: busline_search_name}
-
-
-# %% [markdown]
 # 写入excel文件,支持运行多次不断追加原excel文件的内容写入.
 # TODO: 1.200505,考虑除excel其他存储形式的文件如HDF5/parquet.
 # %%
@@ -409,26 +353,11 @@ station_df_column = [
 ]
 busline_df = pd.DataFrame(columns=busline_df_column)
 station_df = pd.DataFrame(columns=station_df_column)
-NO_SEARCH_RESULT = "no_search_result"
-DUPLICATE_SEARCH = "duplicate_search"
-OK_SEARCH_RESULT = "ok_search_result"
+
 line_noinfo = []
 line_redupinfo = []
-line_result_dict = {NO_SEARCH_RESULT: [], DUPLICATE_SEARCH: [], OK_SEARCH_RESULT: []}
 
 
-# %% [markdown]
-# 从CouchDB中来,到CouchDB中去
-# %%
-try:
-    for busline_search_name in buslines.split(","):
-        result = getonetransportline_to_couchdb(busline_search_name, False)
-        line_result_dict[list(result.keys())[0]].append(list(result.values())[0])
-except KeyError as e:
-    print("Got a KeyError - reason %s" % str(e))
-for k, v in line_result_dict.items():
-    print("--查询线路结果类型:%s;数量%d;详情:%s" % (k, len(v), ",".join(v) if len(v) > 0 else "无此类线路结果."))
-    print("\n")
 # %% [markdown]
 # ### 从Excel文件中来,到文件中去
 # #### 从文件读取待提取线路信息
