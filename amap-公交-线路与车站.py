@@ -257,7 +257,7 @@ def getonebusline3(busline_search_name, current_busline_ids):
         if len(busline_dict) > 0:
             busline = pd.DataFrame(busline_dict, columns=busline_df_column)
             line_redup_bol = busline["id"].astype("int").isin(current_busline_ids)
-            # 不能用append,空白的list也是一个list
+            # 不能用append,需要元素级别放入
             # line_redup_lst.append(list(busline[line_redup_bol]['id']))
             line_redup_lst = (
                 list(busline[line_redup_bol]["id"]) if len(busline[line_redup_bol]) > 0 else []
@@ -313,6 +313,8 @@ def getonebusline_from_amap(busline_search_name):
 # TODO: 需观察数据,查询的线路名称是模糊名称,在amap中会查询出多条线路;
 # 若某次在amap中查询出,而在CouchDB中没有完全保存,则下次在CouchDB中查重,有可能会造成
 # 数据丢失; 比如调试的中断/CouchDB的中断;
+# 目前这样做的好处是尽量少的去amap爬取;
+# 安全的做法是如getonebusline3(),爬取后按busline的id去重.
 def getonetransportline_to_couchdb(busline_search_name, from_8684):
     selector_key = "name_in_8684" if from_8684 else "search_name"
     selector = {selector_key: {"$eq": busline_search_name}}

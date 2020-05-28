@@ -162,13 +162,13 @@ from cloudant.result import Result
 # 什么排序规则?id,key的顺序,与控制台的顺序一致.
 result_c = Result(test_db.all_docs, include_docs=True)
 result = result_c[0]
-# result 是list,结果可能是多个,里边嵌套的是dict.
+# result 是 list,元素是dict.为了切片访问;
 print(type(result))
 print(result)
+print("\n")
 result = result_c[5]
 print(result)
 result = result_c["julia30"]
-
 print(type(result))
 print("julia30:", result)
 
@@ -239,10 +239,9 @@ with couchdb("admin", "admin1", url="http://127.0.0.1:5984") as client:
         doc["age"] = 10
 
 # %% [markdown]
-# ## dic的合并/dict 的value是list的合并;
+# ##
 # %%
 
 # %%
 
 # %%
-
