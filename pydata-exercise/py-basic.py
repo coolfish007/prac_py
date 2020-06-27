@@ -712,13 +712,16 @@ display(glob.glob("*/"))
 display(glob.glob("*/", root_dir=".."))
 display(glob.glob("*"))
 
-# 所有文件,包括隐藏文件,会包括.和..
+# 所有文件,包括隐藏目录会包括.和..
 display(glob.glob(".*"))
 # 所有文件,不包含目录以及隐藏文件
 display(glob.glob("*|!*/", flags=glob.NEGATE | glob.SPLIT))
-display(glob.glob("[a-zA-Z0-9]*.*"))
+display(glob.glob("*", flags=glob.NODIR))
 display(glob.glob("[[:alnum:]]*.*"))
 display(glob.glob("*", root_dir="ak/"))
+
+# %% [markdown]
+# **以下glob的三个片段按照隐藏文件和目录以及所有目录下隐藏文件测试**
 
 # %%
 from wcmatch import glob
@@ -726,12 +729,48 @@ from wcmatch import glob
 display(glob.glob("[de]ef.java"))
 # 以下不支持.
 display(glob.glob("ef$.java"))
-# 目录深度是第一层和第二层:find . -name '[a-g]*.java' -maxdepth 2
+# 目录深度是第一层和第二层(当前目录和一级目录):find . -name '[a-g]*.java' -maxdepth 2
 display(glob.glob(["[a-g]*.java", "*/[a-g]*.java"]))
-# 目录深度是第3层
+# 目录深度是第3层,当前目录下的二级目录
 display(glob.glob(["*/*/[a-g]*.java"]))
 # 包含子目录,**如果代表多层目录,需要加globstar
 display(glob.glob("**/[a-g]*.java", flags=glob.GLOBSTAR))
+
+
+# %%
+from wcmatch import glob
+
+# 当前目录下所有文件和一级子目录
+display(glob.glob("*"))
+# 所有文件,包括隐藏文件和一级隐藏目录
+display(glob.glob("*.*"))
+# 所有文件,包括隐藏文件,但不包括一级隐藏目录
+display(glob.glob("*.*", flags=glob.NODIR))
+# 所有一级子目录
+display(glob.glob("*/"))
+# 所有一级子目录下的所有文件
+display(glob.glob("*/*"))
+
+# %%
+from wcmatch import glob
+
+display("===========以下.*模式匹配==================")
+# .和..不会被匹配,除非pattern中有.开头.
+# 当前目录下,所有隐藏文件和一级隐藏子目录,包括.和..
+display(glob.glob(".*"))
+# 同上,排除. 和 ..
+display(glob.glob([".*", "!.", "!.."], flags=glob.NEGATE))
+# 只要隐藏文件(隐藏目录也会被排除)
+display(glob.glob(".*", flags=glob.NODIR))
+display("===========以下是**所有目录的匹配==================")
+# 所有子目录
+display(glob.glob("**/*/", flags=glob.GLOBSTAR))
+# **模式下,只加GLOBSTAR这种用途不大
+display(glob.glob("**/.*", flags=glob.GLOBSTAR))
+# DOTGLOB相当于隐藏文件和目录的匹配
+# 所有隐藏文件和目录,和当前目录比,加上DOTGLOB
+display(glob.glob("**/.*", flags=glob.GLOBSTAR | glob.DOTGLOB))
+display(glob.glob("**/.*", flags=glob.GLOBSTAR | glob.DOTGLOB | glob.NODIR))
 
 
 # %% [markdown]
@@ -773,3 +812,44 @@ Template("hello, $name!").substitute(name=name)
 
 # %%
 
+
+# %% [markdown]
+# ## Iterable/Iterator/生成器
+# From Fluent Python Chapter 14.
+# %% [markdown]
+# ### Iterable/Iterator
+
+# %% tags=[]
+import sys
+import os
+from wcmatch import pathlib
+
+display(sys.executable)
+src_p = pathlib.Path("..") / "src"
+sys.path.insert(0, os.fspath(src_p.resolve()))
+# display(sys.path)
+
+# %%
+from fluentpy.c14.sentence import Sentence1
+
+s = Sentence1("Crazy world, extraordinary world.")
+display(s)
+for word in s:
+    print(word)
+
+# for之后还有next(),跟sentence1的实现有关
+# sentence1 一次性把words构造出来,并且具备__getitem__()而没有__iter__()
+next(iter(s))
+
+# %%
+from fluentpy.c14.sentence import Sentence2
+
+s = Sentence2("Crazy world, extraordinary world.")
+for word in s:
+    print(word)
+
+
+# %%
+
+
+# %%
