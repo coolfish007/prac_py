@@ -1,5 +1,8 @@
+from functools import wraps
+
+
 def register(active=False):
-    """ pycookbook C9.4 """
+    """ pycookbook C9.4 ,如果想不断增长,registry需要是global,定义在module级别 """
     registry = set()
 
     def decorate(func):
