@@ -22,7 +22,8 @@ class Vector2d:
         # tuple(self)归功于__iter__()
         return str(tuple(self))
 
-    def __byte__(self):
+    def __bytes__(self):
+        print("*" * 5, "in __bytes__()")
         return bytes([ord(self.typecode)]) + bytes(array(self.typecode, self))
 
     def __eq__(self, o: object) -> bool:
@@ -33,3 +34,9 @@ class Vector2d:
 
     def __bool__(self):
         return bool(abs(self))
+
+    @classmethod
+    def frombytes(cls, octets):
+        typecode = chr(octets[0])
+        memv = memoryview(octets[1:]).cast(typecode)
+        return cls(*memv)
