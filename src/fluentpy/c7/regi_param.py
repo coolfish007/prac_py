@@ -16,11 +16,15 @@ def register(active=False):
         print(f"complete regi, registry len->{len(registry)}")
         return func
 
-    def get_registry():
-        return registry
+    # 以下啰嗦,等同于 decorate.get_registry = lambda:registry
+    # def get_registry():
+    #     return registry
 
-    decorate.get_registry = get_registry
+    # 把函数get_registry绑定给decorate函数的get_registry属性
+    # 意味着decorate具备了get_registry函数的能力
+    # decorate.get_registry = get_registry
 
+    decorate.get_registry = lambda: registry
     return decorate
 
 
