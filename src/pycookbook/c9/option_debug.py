@@ -1,6 +1,6 @@
 from functools import wraps
 import inspect
-from inspect import signature
+from inspect import Signature
 
 
 def optional_debug(func):

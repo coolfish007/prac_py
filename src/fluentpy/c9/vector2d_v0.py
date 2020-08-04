@@ -16,6 +16,8 @@ class Vector2d:
         class_name = type(self).__name__
         # {!r}会用repr()调用*self分量(即x,y),!s使用str()调用*self的分量
         # *self归功于__iter__()
+        # 等同与pycb C8.1的
+        # return '{0}({0.x!r},{0.y!r})'.fromat(class_name,*self)
         return "{}({!r},{!r})".format(class_name, *self)
 
     def __str__(self):
