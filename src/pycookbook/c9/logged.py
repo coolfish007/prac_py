@@ -23,7 +23,7 @@ def logged(level, name=None, message=None):
         # 相当与执行 update_wrapper(wrapper,wrapped,assigned,updated),后三个值已被固定;
         # 把把wrapped函数的属性拷贝到wrapper函数中.
         f = f(wrapper)
-        # 以下两个都是wrapper,但属性值不一样.
+        # 以下两个都是wrapper,但值不一样.
         print(f"wrapper->{wrapper}")
         print(f"wraps(func)(wrapper)->{f}")
         return f
