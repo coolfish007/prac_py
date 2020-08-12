@@ -12,7 +12,8 @@ class Descriptor:
         for k, v in opts.items():
             setattr(self, k, v)
 
-    @loggeds
+    # @loggeds
+    # self:描述器本身的实例;ins:描述器所在的类的实例;value:实例的属性值.
     def __set__(self, ins, value):
         logging.debug("=>set in Descriptor.")
         ins.__dict__[self.name] = value
@@ -74,3 +75,25 @@ class String(Typed):
 
 class SizedString(String, MaxSized):
     pass
+
+
+def check_attri(**kwargs):
+    def decorate(cls):
+        for k, v in kwargs.items():
+            logging.info(f"k={k},v={v}")
+            logging.info(isinstance(v, Descriptor))
+            if isinstance(v, Descriptor):
+                logging.info(f"instance of Descriptor,v is {type(v)}")
+                # SizedString(siz=...)已构造,就缺一个name.
+                v.name = k
+                setattr(cls, k, v)
+            else:
+                # 传入的是UnsignedInteger类名,不是UnsignedInteger()对象.
+                # SizedString由于要传入参数,所以传入的是对象.
+                logging.info(f"not instance of Descriptor,v is {type(v)}")
+                # 用k构造一个Descriptor()对应子类的实例.
+                setattr(cls, k, v(k))
+
+        return cls
+
+    return decorate

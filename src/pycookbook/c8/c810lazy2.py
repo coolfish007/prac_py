@@ -19,7 +19,7 @@ def lazyproperty(func):
                 func.__code__.co_varnames,
                 func.__code__.co_argcount,
             )
-            # func是Circle.perimeter而不是对象.perimeter
+            # func是Circle.perimeter而不是Circle的实例.perimeter
             value = func(self)
             setattr(self, name, value)
             return value
