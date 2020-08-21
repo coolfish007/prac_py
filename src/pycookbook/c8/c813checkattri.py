@@ -2,8 +2,6 @@ import logging
 
 from pycookbook.c9.loggeds import loggeds
 
-# logging.basicConfig(level=logging.DEBUG)
-
 
 class Descriptor:
     def __init__(self, name=None, **opts):
@@ -26,6 +24,7 @@ class Typed(Descriptor):
     def __set__(self, ins, value):
         logging.debug("=>set in Typed.")
         if not isinstance(value, self.expected_type):
+            # TODO:str(self.expected_type)没有打印出来
             raise TypeError("expected " + str(self.expected_type))
         super().__set__(ins, value)  # 按mro链执行Typed后的一个.
         logging.debug("=>set in Typed end.")
