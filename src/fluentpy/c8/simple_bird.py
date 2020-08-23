@@ -1,8 +1,14 @@
 class Bird:
     feather = True
 
-    def chirp():
+    def chirp(self):
+        print(self)
         print("bird some sound")
+
+    @classmethod
+    def funcname(*args):
+        print(args)
+        print("bird classmethod")
 
 
 class Chicken(Bird):
@@ -11,5 +17,8 @@ class Chicken(Bird):
     def __init__(self, age) -> None:
         self.age = age
 
-    def chirp():
+    def chirp(self):
         print("jijiji")
+
+    def display_super(self):
+        pass

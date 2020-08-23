@@ -83,14 +83,14 @@ def check_attri(**kwargs):
             logging.info(isinstance(v, Descriptor))
             if isinstance(v, Descriptor):
                 logging.info(f"instance of Descriptor,v is {type(v)}")
-                # SizedString(siz=...)已构造,就缺一个name.
+                # SizedString(siz=...)已构造,name=None,需要设定.
                 v.name = k
                 setattr(cls, k, v)
             else:
                 # 传入的是UnsignedInteger类名,不是UnsignedInteger()对象.
                 # SizedString由于要传入参数,所以传入的是对象.
                 logging.info(f"not instance of Descriptor,v is {type(v)}")
-                # 用k构造一个Descriptor()对应子类的实例.
+                # 用k构造一个Descriptor()对应子类的实例.k是name,没有其他的参数.
                 setattr(cls, k, v(k))
 
         return cls
