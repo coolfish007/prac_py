@@ -245,7 +245,7 @@ addIt.__dict__
 
 # %%
 from functools import reduce
-from operator import mul
+from operator import mul, xor
 
 def fact_re(n):
     """ reduce 结合 mul 计算阶乘 """
@@ -564,7 +564,7 @@ f(3,4)
 
 # %% [markdown]
 # ## 带参数的装饰器3
-# pycookbook C9.6
+# 参数可选:pycb C9.6
 
 # %% tags=[]
 from pycookbook.c9.loggeds import *
@@ -660,11 +660,11 @@ print(f'***p:{p},p.__wrapped__:{p.__wrapped__}')
 p(3,4)
 
 # %% [markdown]
-# ### TODO:将装饰器作用在类的方法上
-# 关联5.@property 延迟计算.
+# ### TODO:将装饰器作用在类方法上
+# 关联至5.@property 延迟计算.
 
 # %% [markdown]
-# ## 使用装饰器动态添加函数的参数 C9.11
+# ## 使用装饰器动态添加函数的参数 pycb C9.11
 
 # %%
 from pycookbook.c9.option_debug import *
@@ -681,6 +681,24 @@ display(add(2,3))
 import inspect
 display(inspect.signature(add))
 
+# %% [markdown]
+# ## 使用装饰器扩展类的功能pycb C9.12
+# 装饰器作用在类之上.
+# %% 
+from pycookbook.c9.c912 import *
+
+@log_getattri
+class A:
+    def __init__(self,x):
+        self.x = x
+    def spam(self):
+        pass
+    def __getattr__(self,name):
+        return 'default'
+
+a = A(40)
+display(a.x)
+display(a.y) #虽然重写了__getattribute__(),会捕捉attributeerror,不存在的属性会自动调用__getattr__()
 # %% [markdown]
 # # 5. Object Oriented
 
@@ -782,7 +800,7 @@ print(ck.outer_test.__code__.co_varnames)
 print(signature(ck.outer_test))
 
 # %% [markdown]
-# ## super()的用法--关联描述器
+# ## super()的用法/解构--关联描述器
 # super在不同参数下可以代表unbound、bound到对象、bound到类型，这点在docstring当中其实写的比较清楚了，
 # Python3省略所有参数时候相当于super(self, class)，是bound到对象。而super(class, class)自然是绑定到了父类。
 # **实质上是对描述器的理解加深,一个描述器,通过__get__()的访问,可以将描述器放置到某实例,即绑定.**
@@ -804,6 +822,7 @@ chirp1 = getattr(o,'chirp')
 display(chirp1) # 已绑定至ck实例
 print(o.chirp)
 print(o.chirp())
+print(o.funcname)
 o = super(Chicken, Chicken)  # 同上注释,bound super object; requires issubclass(type2, type)
 print(o)
 chirp3=getattr(o,'chirp') # 未绑定至实例,为function
@@ -955,7 +974,7 @@ print(dir(f))
 print(f)
 print(f.fget)
 print(dir(f.fget))
-print(f.fget(c2))
+print(f.fget(c2)) # property 绑定至c2
 
 # %% [markdown]
 # 特性是类属性,将特性f设置为Circle的类属性.  
@@ -1126,7 +1145,45 @@ class Stock3:
 s3 = Stock3('hi',3.0)
 display(s3.age1,s3.age2)
 
+# %% [markdown]
+# ## 单例模式 pycb C8.25
+# ### 依然可以调用__init__()
+# %%
+from pycookbook.c8.c825singleton import Spam
 
+s = Spam('hello')
+s1 = Spam('hello')
+display(s is s1)
+display(list(Spam._spam_cache))
+del s 
+display(list(Spam._spam_cache))
+del s1
+display(list(Spam._spam_cache)) # 引用都售出后,在WeakValueDictionary中移除.
+
+# %% [markdown]
+# ### 隐藏__init__()
+
+# %%
+from pycookbook.c8.c825sing1 import Spam2
+
+s = Spam2.get_instance('hello')
+s1 = Spam2.get_instance('hello')
+display(s is s1)
+
+s = Spam2('hello') # __init__()出错.
+
+# %% [markdown]
+# ### 使用元类创建单例或单例的缓存 pycb C9.13
+# 按关键字参数ids创建单例的缓存.
+# %% 
+from pycookbook.c8.c825sing2c913 import Spam3
+s = Spam3('hello',42,ids=123)
+s1 = Spam3('hello',42,ids=123)
+s2 = Spam3('hello1',42,ids=123)
+s3 = Spam3('hello',43,ids=456)
+display(s is s1)
+display(s1 is s2)
+display(s is s3)
 # %% [markdown]
 # # chr/bytearray/Py3 编码
 

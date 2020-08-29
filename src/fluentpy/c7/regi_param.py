@@ -3,7 +3,7 @@ from functools import wraps
 
 def register(active=False, r=set()):
     """ pycookbook C9.4 ,如果想不断增长,registry需要是global,定义在module级别.
-        此外,使用一下这种方法,控制每个新的register执行时registry不会重新初始化. """
+        此外,使用以下这种方法(fltpy C20.1.2),控制每个新的register执行时registry不会重新初始化. """
     # try:
     #     register.count += 1
     # except AttributeError:
