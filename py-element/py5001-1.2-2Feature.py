@@ -684,7 +684,7 @@ display(inspect.signature(add))
 # %% [markdown]
 # ## 使用装饰器扩展类的功能pycb C9.12
 # 装饰器作用在类之上.
-# %% 
+# %%
 from pycookbook.c9.c912 import *
 
 @log_getattri
@@ -1145,6 +1145,7 @@ class Stock3:
 s3 = Stock3('hi',3.0)
 display(s3.age1,s3.age2)
 
+
 # %% [markdown]
 # ## 单例模式 pycb C8.25
 # ### 依然可以调用__init__()
@@ -1175,7 +1176,7 @@ s = Spam2('hello') # __init__()出错.
 # %% [markdown]
 # ### 使用元类创建单例或单例的缓存 pycb C9.13
 # 按关键字参数ids创建单例的缓存.
-# %% 
+# %%
 from pycookbook.c8.c825sing2c913 import Spam3
 s = Spam3('hello',42,ids=123)
 s1 = Spam3('hello',42,ids=123)
