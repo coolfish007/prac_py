@@ -33,14 +33,19 @@ display(page1)
 bs_page = BeautifulSoup(page1.text, "lxml")
 # houses = bs_page.find_all("div", class_="info clear")  # find_all
 houses = bs_page.find_all("div", {"class": "info clear"})
+print(len(houses))
 house_one = houses[0]
 print(house_one)
 
 # %% [markdown]
 # ### 使用bs4的节点选择器
+# 查找到返回的都是列表ResultSet,注意这里和pyquery最大的区别.
+# 使用resultset,需要随处列表和其中的元素进行操作,很繁复.
 # %%
 house_info = house_one.find_all("div", {"class": "houseInfo"})
-print(house_info)
+print(type(house_info), house_info)
+print("*" * 5)
+print(str(house_info))
 position_info = house_one.find_all("div", {"class": "positionInfo"})
 print(position_info)
 totalPrice = house_one.find_all("div", class_="totalPrice")
@@ -71,6 +76,19 @@ all_info = position_str + house_info_str + totalPrice_str + href_str
 print(type(all_info), all_info)
 
 # %%
+# house_info,不使用正则表达式提取信息,对比pyquery.
+# 所以,这种使用find_all(纯API的方式解析)之后必然使用大量的循环以及正则表达式.
+# 灵活提前信息需使用bs4的CSS或XPath,chrome等浏览器右键copy进行选择.
+# 以下是houseInfo节点下的内容:虽然只有一个houseInfo,但也要对list进行操作
+""" 
+<div class="houseInfo"><span class="houseIcon"></span>
+2室1厅 | 81.44平米 | 南 | 毛坯 | 中楼层(共11层)  | 塔楼</div>
+"""
+print(type(house_info[0]), house_info[0].descendants)
+for item in house_info[0].descendants:
+    print(type(item), item)  # 遍历,但要提前信息的话,需要判断不同的节点类型,很麻烦.
+print(house_info[0].name, house_info[0].string)  # 这种情况获取不到内容,为NavigableString,为None
+# %%
 from collections import defaultdict
 import json
 
@@ -91,11 +109,19 @@ print(h_all_info_json)
 # %%
 print(bs_page.title.string, bs_page.script, bs_page.meta)  # 这种方法可以不用
 print(type(bs_page.title))
-print(house_one.contents)  # house_one的所有子节点内容,children返回生成器.
-print(house_one.descendants)  # 所有子孙节点,每个节点是单独的元素,同样是生成器.
+print(house_one.contents)  # house_one的所有子节点内容,属性:children返回生成器.属性同样有API,下同.
+print(house_one.descendants)  # 递归子孙节点,每个节点是单独的元素,同样是生成器.
+
+# %%
+print(house_one.parent)  # parent节点的所有内容,属性:parents递归获取所有祖先节点.
+print(house_one.attrs["class"])  # ['info','clear'],两个值
+
 # %% [markdown]
 # ### 使用bs4的CSS选择器
 # %%
+print(house_one.select(".title"))
+houses = bs_page.select("div.info.clear")  # class是.info.clear的div元素,在chrom选择后亦有显示.
+print(len(houses))
 # %%
 def hello(name=None, *addr, **kwargs):
     print(name, addr, kwargs)
@@ -111,3 +137,30 @@ hello("a", "b", "c", 6, c=4, r=8)
 
 # %% [markdown]
 # ## PyQuery
+# 对节点的遍历和查找,返回的都是PyQuery类型
+#
+# %%
+from pyquery import PyQuery as pq
+
+pq_page = pq(url)  # TODO:更多参数的使用
+
+# %%
+houses = pq_page("div.info.clear")
+print(type(houses), len(houses))  # PyQuery
+
+# %%
+house_one = next(houses.items())
+# %%
+print(type(house_one), house_one)  # 返回的都是PyQuery
+house_info = house_one(".houseInfo")
+print(house_info.text())  # 2室1厅 | 81.44平米 | 南 | 毛坯 | 中楼层(共11层) | 塔楼
+tmp = house_info.parent().parent()
+print(tmp == house_one)  # True
+# %%
+position_info = house_one(".positionInfo")
+# 注意起调的元素是position_info
+xq = position_info("a:nth-child(2)")  # 仁安花园,首先是a元素,其次是第二个元素,如果第二个元素不是a,那么什么都不返回.
+print(xq.text())
+qy = position_info("a:nth-of-type(2)")  # 朱村,第二个a元素
+print(qy.text())
+# %%
