@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -16,10 +17,11 @@
 # ---
 
 # %% [markdown]
-# ## request+bs4
+# ## request+bs4解析
 
 # %%
 from IPython.display import display
+from pyquery.pyquery import PyQuery
 
 # %%
 import requests
@@ -139,6 +141,7 @@ print(house_info[0].get_text())  # 调用.string返回None,调用.get_text()放�
 # %%
 position_info = house_one.select(".positionInfo")[0]
 print(type(position_info), position_info)
+print(position_info.get_text())  # 豪利花园    -  镜湖大道.返回所有文本,所有空格都保留,和PyQuery有所不同.
 tmp = position_info.select("a:nth-child(2)")[0]
 print(type(tmp), tmp.string)  # 取得小区名称
 tmp = position_info.select("a:nth-of-type(2)")[0]
@@ -157,16 +160,16 @@ hello("a", "b", "c", 6, c=4, r=8)
 # %%
 
 # %% [markdown]
-# ## PyQuery
+# ## PyQuery解析
 # 使用CSS选择器对节点的遍历和查找,返回的都是PyQuery类型
 #
 # %%
 from pyquery import PyQuery as pq
 
-pq_page = pq(url)  # TODO:更多参数的使用
+pq_page = pq(url)  # If requests is installed then it will use it
 
 # %%
-houses = pq_page("div.info.clear")
+houses = pq_page("div.info.clear")  # like jquery
 print(type(houses), len(houses))  # PyQuery
 
 # %%
@@ -180,13 +183,13 @@ print(tmp == house_one)  # True
 # %%
 position_info = house_one(".positionInfo")
 # 注意起调的元素是position_info
-xq = position_info("a:nth-child(2)")  # 仁安花园,首先是a元素,其次是第二个元素,如果第二个元素不是a,那么什么都不返回.
+xq = position_info("a:nth-child(2)")  # 仁安花园,nth-child(2):首先是a元素,同时是第二个元素,如果第二个元素不是a,那么什么都不返回.
 print(xq.text())
-qy = position_info("a:nth-of-type(2)")  # 朱村,第二个a元素
+qy = position_info("a:nth-of-type(2)")  # 朱村,nth-of-type(2):第二个a元素
 print(qy.text())
 
 # %%
-# 使用text()需要小心.text()提取的是所有文本内容,例如positionInfo:
+# 使用text()需要小心.text()提取的是所有节点的文本内容,例如positionInfo:
 """ <div class="positionInfo"><span class="positionIcon"></span>
 <a href="https://gz.lianjia.com/xiaoqu/2111103316435/" target="_blank" data-log_index="1" data-el="region">中海名都 </a>
    -  <a href="https://gz.lianjia.com/ershoufang/binjiangzhong/" target="_blank">滨江中</a> 
@@ -198,9 +201,14 @@ print(position_info.text())
 position_info("span").remove()  # 移除<span>节点
 print(position_info.text())
 
+# %%
+position_info = house_one(".positionInfo")
+tmp = position_info("a").map(lambda i, e: pq(e).text())  # i:index,e:element,e可以用this代替.返回PyQuery
+position_info_lst = [i.text() for i in tmp.items()]
+print(position_info_lst)
 
 # %% [markdown]
-### 使用API查找节点
+# ## 使用API查找节点,常用API
 # 以house_one为例
 # %%
 house_info = house_one.find(".houseInfo")  # 查找范围是所有子孙节点.与house_one(".houseInfo")一致.
@@ -209,4 +217,10 @@ print(house_info.html())  # html以及文本的内容.
 tmp = house_info.parents(".info.clear")
 print(tmp.attr("class"))  # 提取属性
 print(tmp == house_one)  # True
+
 # %%
+tmp = house_one.find(".houseInfo").eq(1).end()
+print(type(tmp), tmp)
+print(tmp.hasClass("houseInfo"))
+# %%
+
