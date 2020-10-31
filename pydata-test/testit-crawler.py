@@ -208,7 +208,7 @@ position_info_lst = [i.text() for i in tmp.items()]
 print(position_info_lst)
 
 # %% [markdown]
-# ## 使用API查找节点,常用API
+# ### 使用API查找节点,常用API
 # 以house_one为例
 # %%
 house_info = house_one.find(".houseInfo")  # 查找范围是所有子孙节点.与house_one(".houseInfo")一致.
@@ -222,5 +222,35 @@ print(tmp == house_one)  # True
 tmp = house_one.find(".houseInfo").eq(1).end()
 print(type(tmp), tmp)
 print(tmp.hasClass("houseInfo"))
-# %%
+# %%[markdown]
+# ## Helium
+# ## 基本使用
 
+# %%
+from helium import *
+
+start_chrome("gz.lianjia.com/ershoufang/")
+houses = find_all(S("div.info.clear"))
+print(type(houses), len(houses))
+house_one = houses[0]
+print(type(house_one), house_one)
+position_info = house_one.web_element.find_element_by_css_selector(".positionInfo")
+print(type(position_info), position_info.text)
+
+kill_browser()
+# %%
+from helium import *
+
+browser = start_chrome("gz.lianjia.com/ershoufang/")
+# print(browser.page_source) #ok
+print(browser.get_cookies())  # ok
+houses = find_all(S(".positionInfo"))
+house_one = houses[0]
+position_str = house_one.web_element.text
+print(position_str)
+
+kill_browser()
+
+# %% [markdown]
+# ### Helium示例
+# 找一个selenium的例子,使用helium实现.
