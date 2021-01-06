@@ -19,6 +19,9 @@ class Profiled:
 
         return self.__wrapped__(*args, **kwargs)
 
-    def __get__(parameter_list):
-        """ TODO: """
-        pass
+    def __get__(self, instance, cls):
+        print(f"===5===in __get__(),self->{self},instance->{instance}")
+        if instance is None:
+            return self
+        else:
+            return types.MethodType(self, instance)
