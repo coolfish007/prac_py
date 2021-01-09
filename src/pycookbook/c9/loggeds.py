@@ -2,15 +2,15 @@ from functools import wraps, partial
 import logging
 
 
-def attach_wrapper(obj, func=None):
-    if func is None:
-        print("func is None. get attatch_wrapper...")
-        return partial(attach_wrapper, obj)
-    print("func is not None, execute attach_wrapper with func")
+def attach_method_to_wrapper(wrapper_func, attach_method=None):
+    if attach_method is None:
+        print("attach_method is None. get attatch_wrapper...")
+        return partial(attach_method_to_wrapper, wrapper_func)
+    # print("func is not None, execute attach_wrapper with func")
     # 动态语言的强大之处,运行时给wrapper绑定一个方法
     # 上面return partial()这种用法会经常用,返回自己
-    setattr(obj, func.__name__, func)
-    return func
+    setattr(wrapper_func, attach_method.__name__, attach_method)
+    return wrapper_func
 
 
 def loggeds(func=None, *, level=logging.DEBUG, name=None, message=None):
@@ -39,12 +39,14 @@ def loggeds(func=None, *, level=logging.DEBUG, name=None, message=None):
 
     wrapper.msg_it = msg_it
 
-    # 相当于attach_wrapper(wrapper)(get_msg)
-    @attach_wrapper(wrapper)
+    # 做法3:动态绑定get_msg到wrapper,set_msg也一样
+    # 这样就不用手动把方法绑定到wrapper上了
+    # 相当于attach_method_to_wrapper(wrapper)(get_msg)
+    @attach_method_to_wrapper(wrapper)
     def get_msg():
         return logmsg
 
-    @attach_wrapper(wrapper)
+    @attach_method_to_wrapper(wrapper)
     def set_msg(new_msg):
         nonlocal logmsg
         logmsg = new_msg
