@@ -10,6 +10,7 @@
 #       jupytext_version: 1.4.2
 #   kernelspec:
 #     display_name: 'Python 3.8.2 64-bit (''data'': venv)'
+#     language: python
 #     name: python38264bitdatavenv86c8e9e79e034983bf9e66a89847a1a4
 # ---
 
@@ -165,10 +166,10 @@ fun(1,**iterable)
 # ### 可变参数*之前的参数不能指定参数名
 
 # %% tags=[]
-def fun(a,*num):
+def fun(a=0,*num):
     print(a,num)
 fun(1,2,3)
-fun(1,num=2) # TypeError: fun() got an unexpected keyword argument 'num'
+fun(1,2,3,num=9) # TypeError: fun() got an unexpected keyword argument 'num'
 
 # %%
 fun(a=1,2,3) #SyntaxError: positional argument follows keyword argument
@@ -571,7 +572,6 @@ from pycookbook.c9.loggeds import *
 import logging
 
 logging.basicConfig(level=logging.WARNING)
-logging.debug('hi')
 
 @loggeds
 def addIt(x,y):
@@ -646,7 +646,7 @@ def add(x,y):
 add(3,4)
 
 # %% [markdown]
-# 解构装饰器,wraps的解构在profiled中.
+# ### 将类装饰器装饰在类的方法上
 
 # %% tags=[]
 from pycookbook.c9.profiled import Profiled
@@ -659,9 +659,47 @@ print(f'***p:{p},p.__wrapped__:{p.__wrapped__}')
 # p有__call__()函数,可调用,addIt(3,4)等同于p(3,4)
 p(3,4)
 
+# %%
+from pycookbook.c9.profiled import Profiled
+
+class Spam:
+    def bar(self,x):
+        print(self,x)
+    p = Profiled(bar)
+s = Spam()
+#p = Profiled(Spam.bar)
+#p.__get__(s,Spam)(3) #相当于在bar前定义@Profiled
+s.p(3) #这样写更清晰的表示p是描述器,只不过__get__()把p做为可执行函数绑定给Spam对象,并且p是类变量,只有一个.
+s1 = Spam()
+s1.p(4) #记录bar在不同对象中被调用的次数.
+
 # %% [markdown]
-# ### TODO:将装饰器作用在类方法上
-# 关联至5.@property 延迟计算.
+# ## 将装饰器作用在类方法上pycb C8.10
+# 比pycb C8.10@property 延迟计算简单. C8.10把@property的内容也附加上.
+
+# %%
+from functools import wraps
+def profileds(fun):
+    ncall=0
+
+    @wraps(fun)
+    def wrapper(*args,**kwargs):
+        nonlocal ncall
+        ncall+=1
+        return fun(*args,**kwargs)
+
+    wrapper.ncall=lambda:ncall
+
+    return wrapper
+
+class Spam:
+    @profileds
+    def bar(self,x):
+        print(self,x)
+
+s = Spam()
+s.bar(3)
+s.bar.ncall()
 
 # %% [markdown]
 # ## 使用装饰器动态添加函数的参数 pycb C9.11
@@ -828,7 +866,7 @@ print(o)
 chirp3=getattr(o,'chirp') # 未绑定至实例,为function
 chirp4=o.chirp.__get__(None,Chicken) # 未绑定至实例,返回function本身
 display(chirp3 is chirp4) #同一id
-chirp2 = getattr(o,'chirp').__get__(ck) # function也是描述器,绑定至ck,为bound method
+chirp2 = getattr(o,'chirp').__get__(ck) # function也是描述器,调用省略了self,绑定至ck,为bound method
 display(chirp2) 
 display(chirp1==chirp2)
 display(chirp1 is chirp2)
@@ -1186,7 +1224,10 @@ display(s is s1)
 display(s1 is s2)
 display(s is s3)
 # %% [markdown]
-# # chr/bytearray/Py3 编码
+# # 6.Py3 字符串与编码
+
+# %% [markdown]
+# ## chr/bytearray/
 
 # %%
 # 默认编码是unicode_escape
@@ -1229,7 +1270,218 @@ display(b,len(b))
 b = bytes('你好',encoding='utf-8')
 display(b)
 
+
 # %% [markdown]
 #
+
+# %% [markdown]
+# # 7. 协程
+
+# %% [markdown]
+# ## 7.1 yield与yield from
+
+# %%
+def func1():
+    print('in func1()')
+    ret = yield request("http://test.com/foo")
+    ret = yield func2(ret)
+    return ret
+
+def func2(data):
+    print('in func2()')
+    result = yield request("http://test.com/"+data)
+    return result
+
+def request(url): 
+    """ 这里模拟返回一个io操作，包含io操作的所有信息，这里用字符串简化代替.
+    request 如果注册给ioloop,即io完成后进行唤醒. """
+    print(f'in request().before request yield:iojob of {url}')
+    result = yield "return url:iojob of %s" % url
+    print('after retuqest yield')
+    return result
+
+
+# %%
+g = request('bar')
+ret = g.send(None)
+print('*'*5,ret)
+ret = g.send('end')
+print(ret)
+
+# %% [markdown]
+# ### fltpy 16.18示例
+# 子生成器func1运行,func1内部嵌套第二层生成器没有运行.
+
+# %%
+from inspect import isgenerator
+
+def wrapper(gen):
+    _i = iter(gen) #func1
+    try:
+        _y = next(_i)
+    except StopIteration as _e:
+        _r = _e.value
+    else:
+        while True:
+            _s = yield _y
+            try:
+                _y = _i.send(_s)
+            except StopIteration as _e:
+                _r = _e.value
+                break
+    print('--',_r)
+    return _r
+
+w = wrapper(func1())
+params = [None,'bar','end']
+result = None
+for p in params:
+    # result = w.send(p)
+    print(w.send(p)) #w也是生成器,func1的stopiteration捕捉了,w也执行完了,没有捕捉;
+    # if isgenerator(result):
+    #     w = result
+
+
+# %% [markdown]
+# ### 模拟yield from的执行(来自于pocket收藏:python协程的本质
+# 子生成器嵌套的触发不断运行
+
+# %%
+from inspect import isgenerator
+from inspect import getgeneratorstate
+
+def wrapper(gen):
+    print('in wrapper gen:',gen)
+    stack = []
+    stack.append(gen)
+    result = None
+    while True:
+        item = stack[-1]
+        if(isgenerator(item)):
+            try:
+                print(item,getgeneratorstate(item))
+                child = item.send(result) # 在func1第一个yield处暂停,返回生成器request(url);
+                stack.append(child)
+                result = None
+                continue
+            except StopIteration as e:
+                print('StopIteration',e.value) #直至request执行结束,捕获异常;
+                result = e.value
+        else:
+            print('return request yield value.')
+            result = yield item # 返回request(url)中yield右侧的值,并等待调用方发送参数
+        stack.pop() # 当返回非生成器或执行完后,弹出栈顶的元素;
+        if not stack:
+            print('finish.')
+            return result
+
+w = wrapper(func1())
+print('*'*5,'client start...',isgenerator(w)) # 如果w也是generator,先执行此行;w在send(None)预激时执行;
+try:
+    w.send(None)
+    print('*'*5,'execute in client...')
+    w.send('bar')
+    print('*'*5,'execute in client...')
+    w.send('the end')
+except StopIteration as e:
+    print('The final result:'+e.value)
+
+# %% [markdown]
+# ## 使用yield from代替yield
+
+# %%
+from types import coroutine
+
+def func1():
+    print('in func1()')
+    ret = yield from request("http://test.com/foo") # 如果去掉from,在这里暂停
+    ret = yield from func2(ret)
+    return ret
+
+def func2(data):
+    print('in func2()')
+    result = yield from request("http://test.com/"+data)
+    return result
+
+async def func3(data):
+    print('in func3()')
+    await request_co("http://test.com/"+data)
+    return 'end func3'
+
+def request(url):
+    # 这里模拟返回一个io操作，包含io操作的所有信息，这里用字符串简化代替
+    print(f'before request yield:iojob of {url}')
+    result = yield "return url:iojob of %s" % url
+    print('after retuqest yield:',result)
+    return result
+
+@coroutine
+def request_co(url):
+    # 这里模拟返回一个io操作，包含io操作的所有信息，这里用字符串简化代替
+    print(f'before request yield:iojob of {url}')
+    yield "return url:iojob of %s" % url
+    print('after retuqest yield:')
+
+
+
+# %%
+g = func2('bar')
+ret = g.send(None)
+print('*'*5,ret)
+ret = g.send('end')
+print(ret)
+
+# %% [markdown]
+# ### 调度器模拟,asyncio-async/await 执行
+# %%
+import traceback
+
+async def func4():
+    """ 管控func3()的执行,执行2次.执行完之后抛出StopIteration. """
+    i = 2
+    while True:
+        if(i==0):
+            break
+        ret = await func3('bar+'+str(i))
+        print('*'*3*i,ret)
+        i-=1
+
+co = func4()
+print(co)
+# 下边相当与一个调度器
+while True:
+    try:
+        print('-----send co signal.') #执行3次;第二次执行推动yield向下并
+        co.send(None) #推动协程运行
+    except StopIteration as e:
+        traceback.print_exc()
+        break
+
+
+# %% [markdown]
+# ### yield from的执行
+# %%
+from inspect import getgeneratorstate
+from inspect import isgenerator
+
+g = func1()
+print('func1:',isgenerator(g),getgeneratorstate(g))
+result = g.send(None)
+print('*'*5,result,',sending param')
+result = g.send('bar')
+print('*'*5,result,',sending param')
+g.send('the end')
+
+# %%
+from inspect import getgeneratorstate
+from inspect import isgenerator
+
+def wrapper(gen):
+    yield from gen
+w = wrapper(func1())
+ret = w.send(None)
+print('*'*5,'execute in client...',ret)
+ret = w.send('bar')
+print('*'*5,'execute in client...',ret)
 
 # %%
